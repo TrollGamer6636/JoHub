@@ -92,11 +92,13 @@ keyBox.TextColor3 = Color3.fromRGB(0,0,0)
 keyBox.BackgroundColor3 = Color3.fromRGB(255,220,255)
 keyBox.BackgroundTransparency = 0.1
 keyBox.Parent = keyFrame
-keyBox.TextXAlignment = Enum.TextXAlignment.Center
+keyBox.TextXAlignment = Enum.TextXAlignment.Left -- Links ausrichten für normales Verhalten
 keyBox.ClearTextOnFocus = false
 keyBox.TextWrapped = false
-keyBox.ClipsDescendants = false
+keyBox.ClipsDescendants = true -- Clipping aktivieren, damit Text nicht "rausläuft"
 keyBox.TextEditable = true
+keyBox.TextTruncate = Enum.TextTruncate.AtEnd -- Text am Ende abschneiden, falls zu lang
+keyBox.TextMasked = true -- Key-Eingabe maskieren (zensieren)
 local keyBoxCorner = Instance.new("UICorner", keyBox)
 keyBoxCorner.CornerRadius = UDim.new(0, 12)
 
