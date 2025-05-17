@@ -502,53 +502,8 @@ function showCatalogContent(index)
             return f
         end
 
-        -- 1. Feld: Willkommen, USER! mit Herz und Schreibanimation
-        local welcomeField = createField(1,1)
-        local welcome = Instance.new("TextLabel")
-        welcome.Text = ""
-        welcome.Font = Enum.Font.GothamBold
-        welcome.TextSize = 22
-        welcome.TextColor3 = getBrightTextColor()
-        welcome.BackgroundTransparency = 1
-        welcome.Position = UDim2.new(0,16,0,30)
-        welcome.Size = UDim2.new(1,-32,0,32)
-        welcome.ZIndex = welcomeField.ZIndex + 1
-        welcome.TextXAlignment = Enum.TextXAlignment.Left
-        welcome.Parent = welcomeField
-        -- Herz daneben als Label
-        local heart = Instance.new("TextLabel")
-        heart.Text = "❤️"
-        heart.Font = Enum.Font.GothamBold
-        heart.TextSize = 22
-        heart.TextColor3 = Color3.fromRGB(255,0,80)
-        heart.BackgroundTransparency = 1
-        heart.Position = UDim2.new(0, 0, 0, 0)
-        heart.Size = UDim2.new(0, 32, 0, 32)
-        heart.ZIndex = welcome.ZIndex + 1
-        heart.Parent = welcomeField
-        -- Schreib-/Lösch-Animation
-        spawn(function()
-            local baseText = "Willkommen, "..player.Name.."! "
-            while mainPanel.Parent do
-                -- Schreiben
-                for i = 1, #baseText do
-                    welcome.Text = string.sub(baseText, 1, i)
-                    heart.Position = UDim2.new(0, welcome.TextBounds.X + 24, 0, 0)
-                    wait(0.045)
-                end
-                wait(1.2)
-                -- Löschen (Backspace-Effekt)
-                for i = #baseText, 0, -1 do
-                    welcome.Text = string.sub(baseText, 1, i)
-                    heart.Position = UDim2.new(0, welcome.TextBounds.X + 24, 0, 0)
-                    wait(0.025)
-                end
-                wait(2.5)
-            end
-        end)
-
-        -- 2. Feld: Profilbild
-        local avatarField = createField(2,1)
+        -- 1. Feld: Profilbild
+        local avatarField = createField(1,1)
         local avatarImg = Instance.new("ImageLabel")
         avatarImg.Size = UDim2.new(0, 70, 0, 70)
         avatarImg.Position = UDim2.new(0, 20, 0, 20)
@@ -570,10 +525,97 @@ function showCatalogContent(index)
         nameLabel.ZIndex = avatarField.ZIndex + 1
         nameLabel.Parent = avatarField
 
-        -- 3. Feld: Statistiken (ohne Session-Start)
+        -- 2. Feld: Willkommen, USER! ❤️ mit Animation, darunter Datum/Uhrzeit/Session
+        local welcomeField = createField(2,1)
+        local welcome = Instance.new("TextLabel")
+        welcome.Text = ""
+        welcome.Font = Enum.Font.GothamBold
+        welcome.TextSize = 22
+        welcome.TextColor3 = getBrightTextColor()
+        welcome.BackgroundTransparency = 1
+        welcome.Position = UDim2.new(0,16,0,10)
+        welcome.Size = UDim2.new(1,-32,0,32)
+        welcome.ZIndex = welcomeField.ZIndex + 1
+        welcome.TextXAlignment = Enum.TextXAlignment.Left
+        welcome.Parent = welcomeField
+        -- Herz als Label (wird mit animiert)
+        local heart = Instance.new("TextLabel")
+        heart.Text = ""
+        heart.Font = Enum.Font.GothamBold
+        heart.TextSize = 22
+        heart.TextColor3 = Color3.fromRGB(255,0,80)
+        heart.BackgroundTransparency = 1
+        heart.Position = UDim2.new(0, 0, 0, 0)
+        heart.Size = UDim2.new(0, 32, 0, 32)
+        heart.ZIndex = welcome.ZIndex + 1
+        heart.Parent = welcomeField
+        -- Schreib-/Lösch-Animation mit Herz
+        spawn(function()
+            local baseText = "Willkommen, "..player.Name.."!"
+            while mainPanel.Parent do
+                -- Schreiben
+                for i = 1, #baseText do
+                    welcome.Text = string.sub(baseText, 1, i)
+                    if i == #baseText then
+                        heart.Text = " ❤️"
+                    else
+                        heart.Text = ""
+                    end
+                    heart.Position = UDim2.new(0, welcome.TextBounds.X + 8, 0, 0)
+                    wait(0.045)
+                end
+                wait(1.2)
+                -- Löschen (Backspace-Effekt)
+                for i = #baseText, 0, -1 do
+                    welcome.Text = string.sub(baseText, 1, i)
+                    if i == #baseText then
+                        heart.Text = " ❤️"
+                    else
+                        heart.Text = ""
+                    end
+                    heart.Position = UDim2.new(0, welcome.TextBounds.X + 8, 0, 0)
+                    wait(0.025)
+                end
+                wait(2.5)
+            end
+        end)
+        -- Datum/Uhrzeit/Session darunter
+        local dateLabel = Instance.new("TextLabel")
+        dateLabel.Text = ""
+        dateLabel.Font = Enum.Font.Gotham
+        dateLabel.TextSize = 16
+        dateLabel.TextColor3 = getBrightTextColor()
+        dateLabel.BackgroundTransparency = 1
+        dateLabel.Position = UDim2.new(0,16,0,44)
+        dateLabel.Size = UDim2.new(1,-32,0,20)
+        dateLabel.ZIndex = welcomeField.ZIndex + 1
+        dateLabel.Parent = welcomeField
+        local sessionLabel = Instance.new("TextLabel")
+        sessionLabel.Text = "Session: 0s"
+        sessionLabel.Font = Enum.Font.Gotham
+        sessionLabel.TextSize = 16
+        sessionLabel.TextColor3 = getBrightTextColor()
+        sessionLabel.BackgroundTransparency = 1
+        sessionLabel.Position = UDim2.new(0,16,0,66)
+        sessionLabel.Size = UDim2.new(1,-32,0,20)
+        sessionLabel.ZIndex = welcomeField.ZIndex + 1
+        sessionLabel.Parent = welcomeField
+        spawn(function()
+            while mainPanel.Parent do
+                local now = os.date("%d.%m.%Y %H:%M:%S")
+                dateLabel.Text = now
+                local elapsed = math.floor(tick()-sessionStartTime)
+                local min = math.floor(elapsed/60)
+                local sec = elapsed%60
+                sessionLabel.Text = string.format("Session: %dm %ds", min, sec)
+                wait(1)
+            end
+        end)
+
+        -- 3. Feld: Statistiken (nur Script-Anzahl)
         local statsField = createField(1,2)
         local statsLabel = Instance.new("TextLabel")
-        statsLabel.Text = string.format("Scripts: %d\nUhrzeit: %s", #Scripts.list, os.date("%H:%M:%S"))
+        statsLabel.Text = string.format("Scripts: %d", #Scripts.list)
         statsLabel.Font = Enum.Font.Gotham
         statsLabel.TextSize = 16
         statsLabel.TextColor3 = getBrightTextColor()
@@ -583,12 +625,6 @@ function showCatalogContent(index)
         statsLabel.TextYAlignment = Enum.TextYAlignment.Center
         statsLabel.ZIndex = statsField.ZIndex + 1
         statsLabel.Parent = statsField
-        spawn(function()
-            while statsLabel.Parent do
-                statsLabel.Text = string.format("Scripts: %d\nUhrzeit: %s", #Scripts.list, os.date("%H:%M:%S"))
-                wait(1)
-            end
-        end)
 
         -- 4. Feld: Credits + Feedback
         local creditsField = createField(2,2)
