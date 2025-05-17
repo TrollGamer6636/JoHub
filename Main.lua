@@ -471,37 +471,42 @@ local Scripts = loadstring(game:HttpGet("https://raw.githubusercontent.com/Troll
 function showCatalogContent(index)
     clearCatalogContent()
     if index == 1 then
-        -- Neues Main-Katalog-Layout mit eigenen Feldern und dunklerem Hintergrund
-        local function darker(color, percent)
-            -- Prozent negativ für dunkler
-            local f = 1 + percent
-            return Color3.new(
-                math.clamp(color.R * f, 0, 1),
-                math.clamp(color.G * f, 0, 1),
-                math.clamp(color.B * f, 0, 1)
-            )
-        end
-
+        -- Einheitliches 2x2-Grid für die vier Felder
         local mainPanel = Instance.new("Frame")
         mainPanel.Size = UDim2.new(1,-20,1,-20)
         mainPanel.Position = UDim2.new(0,10,0,10)
         mainPanel.BackgroundTransparency = 1
-        mainPanel.ZIndex = mainFrame.ZIndex + 1 -- Panel über mainFrame
+        mainPanel.ZIndex = mainFrame.ZIndex + 1
         mainPanel.Parent = catalogContainer
         catalogContent = mainPanel
 
-        -- Oben links: Profilbild mit Feld
-        local avatarField = Instance.new("Frame")
-        avatarField.Size = UDim2.new(0, 120, 0, 120)
-        avatarField.Position = UDim2.new(0, 0, 0, 0)
-        avatarField.BackgroundColor3 = currentTheme.BgAccent
-        avatarField.BackgroundTransparency = 0.04 -- weniger durchsichtig
-        avatarField.ZIndex = mainPanel.ZIndex + 1
-        avatarField.Parent = mainPanel
-        local avatarFieldCorner = Instance.new("UICorner", avatarField)
-        avatarFieldCorner.CornerRadius = UDim.new(0, 22)
+        -- Grid-Konfiguration
+        local gridRows, gridCols = 2, 2
+        local gridPadding = 16
+        local cellW = (mainPanel.AbsoluteSize.X - gridPadding * (gridCols+1)) / gridCols
+        local cellH = (mainPanel.AbsoluteSize.Y - gridPadding * (gridRows+1)) / gridRows
+        -- Da AbsoluteSize erst nach Parent-Set verfügbar ist, statisch setzen:
+        cellW = 280
+        cellH = 110
+
+        -- Helper für Felder
+        local function createField(x, y)
+            local f = Instance.new("Frame")
+            f.Size = UDim2.new(0, cellW, 0, cellH)
+            f.Position = UDim2.new(0, gridPadding + (x-1)*(cellW+gridPadding), 0, gridPadding + (y-1)*(cellH+gridPadding))
+            f.BackgroundColor3 = currentTheme.BgAccent
+            f.BackgroundTransparency = 0.04
+            f.ZIndex = mainPanel.ZIndex + 1
+            f.Parent = mainPanel
+            local c = Instance.new("UICorner", f)
+            c.CornerRadius = UDim.new(0, 22)
+            return f
+        end
+
+        -- 1. Feld: Profilbild
+        local avatarField = createField(1,1)
         local avatarImg = Instance.new("ImageLabel")
-        avatarImg.Size = UDim2.new(0, 80, 0, 80)
+        avatarImg.Size = UDim2.new(0, 70, 0, 70)
         avatarImg.Position = UDim2.new(0, 20, 0, 20)
         avatarImg.BackgroundTransparency = 1
         avatarImg.Image = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=420&height=420&format=png", player.UserId)
@@ -510,47 +515,49 @@ function showCatalogContent(index)
         local avatarCorner = Instance.new("UICorner", avatarImg)
         avatarCorner.CornerRadius = UDim.new(1,0)
         avatarImg.ImageTransparency = 0.08
+        local nameLabel = Instance.new("TextLabel")
+        nameLabel.Text = player.Name
+        nameLabel.Font = Enum.Font.GothamBold
+        nameLabel.TextSize = 20
+        nameLabel.TextColor3 = getBrightTextColor()
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Position = UDim2.new(0, 100, 0, 35)
+        nameLabel.Size = UDim2.new(1,-110,0,30)
+        nameLabel.ZIndex = avatarField.ZIndex + 1
+        nameLabel.Parent = avatarField
 
-        -- Oben rechts: Willkommen, Datum/Uhrzeit, Session mit Feld
-        local topRightField = Instance.new("Frame")
-        topRightField.Size = UDim2.new(0, 320, 0, 120)
-        topRightField.Position = UDim2.new(1, -320, 0, 0)
-        topRightField.BackgroundColor3 = currentTheme.BgAccent
-        topRightField.BackgroundTransparency = 0.04
-        topRightField.ZIndex = mainPanel.ZIndex + 1
-        topRightField.Parent = mainPanel
-        local topRightCorner = Instance.new("UICorner", topRightField)
-        topRightCorner.CornerRadius = UDim.new(0, 22)
+        -- 2. Feld: Willkommen/Datum/Session
+        local welcomeField = createField(2,1)
         local welcome = Instance.new("TextLabel")
         welcome.Text = "Willkommen, "..player.Name
         welcome.Font = Enum.Font.GothamBold
-        welcome.TextSize = 24
+        welcome.TextSize = 20
         welcome.TextColor3 = getBrightTextColor()
         welcome.BackgroundTransparency = 1
         welcome.Position = UDim2.new(0,16,0,10)
-        welcome.Size = UDim2.new(1,-32,0,32)
-        welcome.ZIndex = topRightField.ZIndex + 1
-        welcome.Parent = topRightField
+        welcome.Size = UDim2.new(1,-32,0,28)
+        welcome.ZIndex = welcomeField.ZIndex + 1
+        welcome.Parent = welcomeField
         local dateLabel = Instance.new("TextLabel")
         dateLabel.Text = ""
         dateLabel.Font = Enum.Font.Gotham
-        dateLabel.TextSize = 18
+        dateLabel.TextSize = 16
         dateLabel.TextColor3 = getBrightTextColor()
         dateLabel.BackgroundTransparency = 1
-        dateLabel.Position = UDim2.new(0,16,0,44)
-        dateLabel.Size = UDim2.new(1,-32,0,24)
-        dateLabel.ZIndex = topRightField.ZIndex + 1
-        dateLabel.Parent = topRightField
+        dateLabel.Position = UDim2.new(0,16,0,40)
+        dateLabel.Size = UDim2.new(1,-32,0,20)
+        dateLabel.ZIndex = welcomeField.ZIndex + 1
+        dateLabel.Parent = welcomeField
         local sessionLabel = Instance.new("TextLabel")
         sessionLabel.Text = "Session: 0s"
         sessionLabel.Font = Enum.Font.Gotham
-        sessionLabel.TextSize = 18
+        sessionLabel.TextSize = 16
         sessionLabel.TextColor3 = getBrightTextColor()
         sessionLabel.BackgroundTransparency = 1
-        sessionLabel.Position = UDim2.new(0,16,0,72)
-        sessionLabel.Size = UDim2.new(1,-32,0,24)
-        sessionLabel.ZIndex = topRightField.ZIndex + 1
-        sessionLabel.Parent = topRightField
+        sessionLabel.Position = UDim2.new(0,16,0,65)
+        sessionLabel.Size = UDim2.new(1,-32,0,20)
+        sessionLabel.ZIndex = welcomeField.ZIndex + 1
+        sessionLabel.Parent = welcomeField
         local startTime = tick()
         spawn(function()
             while mainPanel.Parent do
@@ -564,45 +571,30 @@ function showCatalogContent(index)
             end
         end)
 
-        -- Unten links: Statistiken mit Feld
-        local statsField = Instance.new("Frame")
-        statsField.Size = UDim2.new(0, 220, 0, 80)
-        statsField.Position = UDim2.new(0, 0, 1, -80)
-        statsField.BackgroundColor3 = currentTheme.BgAccent
-        statsField.BackgroundTransparency = 0.04
-        statsField.ZIndex = mainPanel.ZIndex + 1
-        statsField.Parent = mainPanel
-        local statsCorner = Instance.new("UICorner", statsField)
-        statsCorner.CornerRadius = UDim.new(0, 18)
+        -- 3. Feld: Statistiken
+        local statsField = createField(1,2)
         local statsLabel = Instance.new("TextLabel")
         statsLabel.Text = string.format("Scripts: %d\nSession-Starts: 1", #Scripts.list)
         statsLabel.Font = Enum.Font.Gotham
-        statsLabel.TextSize = 18
+        statsLabel.TextSize = 16
         statsLabel.TextColor3 = getBrightTextColor()
         statsLabel.BackgroundTransparency = 1
         statsLabel.Size = UDim2.new(1,0,1,0)
         statsLabel.TextWrapped = true
-        statsLabel.TextYAlignment = Enum.TextYAlignment.Top
+        statsLabel.TextYAlignment = Enum.TextYAlignment.Center
         statsLabel.ZIndex = statsField.ZIndex + 1
         statsLabel.Parent = statsField
 
-        -- Unten rechts: Credits + Feedback mit Feld
-        local creditsField = Instance.new("Frame")
-        creditsField.Size = UDim2.new(0, 220, 0, 80)
-        creditsField.Position = UDim2.new(1, -220, 1, -80)
-        creditsField.BackgroundColor3 = currentTheme.BgAccent
-        creditsField.BackgroundTransparency = 0.04
-        creditsField.ZIndex = mainPanel.ZIndex + 1
-        creditsField.Parent = mainPanel
-        local creditsCorner = Instance.new("UICorner", creditsField)
-        creditsCorner.CornerRadius = UDim.new(0, 18)
+        -- 4. Feld: Credits + Feedback
+        local creditsField = createField(2,2)
         local creditsLabel = Instance.new("TextLabel")
         creditsLabel.Text = "JoHub by k5d6r\nDesign: Joshy"
         creditsLabel.Font = Enum.Font.Gotham
-        creditsLabel.TextSize = 16
+        creditsLabel.TextSize = 14
         creditsLabel.TextColor3 = getBrightTextColor()
         creditsLabel.BackgroundTransparency = 1
-        creditsLabel.Size = UDim2.new(1,0,0,40)
+        creditsLabel.Size = UDim2.new(1,0,0,32)
+        creditsLabel.Position = UDim2.new(0,0,0,8)
         creditsLabel.TextYAlignment = Enum.TextYAlignment.Top
         creditsLabel.ZIndex = creditsField.ZIndex + 1
         creditsLabel.Parent = creditsField
@@ -613,8 +605,8 @@ function showCatalogContent(index)
         feedbackBtn.BackgroundColor3 = currentTheme.Color
         feedbackBtn.TextColor3 = getBrightTextColor()
         feedbackBtn.BackgroundTransparency = 0.08
-        feedbackBtn.Size = UDim2.new(1,0,0,32)
-        feedbackBtn.Position = UDim2.new(0,0,1,-32)
+        feedbackBtn.Size = UDim2.new(0.8,0,0,32)
+        feedbackBtn.Position = UDim2.new(0.1,0,1,-44) -- Mehr Abstand nach unten
         feedbackBtn.ZIndex = creditsField.ZIndex + 1
         feedbackBtn.Parent = creditsField
         local feedbackBtnCorner = Instance.new("UICorner", feedbackBtn)
@@ -751,6 +743,7 @@ function showCatalogContent(index)
                 modal:Destroy()
             end)
         end)
+
         -- Animationen für alle Felder
         for _,obj in ipairs(mainPanel:GetDescendants()) do
             if obj:IsA("TextLabel") or obj:IsA("TextButton") then
