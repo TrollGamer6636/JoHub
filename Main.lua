@@ -212,14 +212,14 @@ welcomeLabel.Parent = catalogContainer
 -- Musik-Objekte
 local keyMusic = Instance.new("Sound")
 keyMusic.Name = "JoHubKeyMusic"
-keyMusic.SoundId = "rbxassetid://1843529636" -- Chillige Instrumental-Musik (z.B. LoFi)
+keyMusic.SoundId = "rbxassetid://1843520827" -- Chillige Instrumental-Musik (z.B. LoFi)
 keyMusic.Volume = 0.18
 keyMusic.Looped = true
 keyMusic.Parent = screenGui
 
 local transitionMusic = Instance.new("Sound")
 transitionMusic.Name = "JoHubTransitionMusic"
-transitionMusic.SoundId = "rbxassetid://1843524017" -- Kurze Übergangsmusik (z.B. UI Jingle)
+transitionMusic.SoundId = "rbxassetid://1843520827" -- Kurze Übergangsmusik (z.B. UI Jingle)
 transitionMusic.Volume = 0.45
 transitionMusic.Looped = false
 transitionMusic.Parent = screenGui
@@ -313,7 +313,7 @@ applyTheme(currentTheme)
 -- Klick-Sound Setup
 local clickSound = Instance.new("Sound")
 clickSound.Name = "JoHubClickSound"
-clickSound.SoundId = "rbxassetid://9118828560" -- Roblox UI Click Sound (oder beliebig ersetzen)
+clickSound.SoundId = "rbxassetid://1843520827" -- Roblox UI Click Sound (oder beliebig ersetzen)
 clickSound.Volume = 0.5
 clickSound.Parent = screenGui
 
