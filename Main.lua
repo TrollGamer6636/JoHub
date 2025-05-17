@@ -212,7 +212,7 @@ welcomeLabel.Parent = catalogContainer
 -- Musik-Objekte
 local keyMusic = Instance.new("Sound")
 keyMusic.Name = "JoHubKeyMusic"
-keyMusic.SoundId = "rbxassetid://1843520827" -- Chillige Instrumental-Musik (z.B. LoFi)
+keyMusic.SoundId = "rbxassetid://1841647093" -- Neue Key-Login Musik
 keyMusic.Volume = 0.18
 keyMusic.Looped = true
 keyMusic.Parent = screenGui
@@ -226,12 +226,18 @@ transitionMusic.Parent = screenGui
 
 local function playKeyMusic()
     if not keyMusic.IsPlaying then
+        keyMusic.Volume = 0.18
         keyMusic:Play()
     end
 end
 local function stopKeyMusic()
     if keyMusic.IsPlaying then
+        -- Fading out the key music
+        local fadeTween = TweenService:Create(keyMusic, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Volume = 0})
+        fadeTween:Play()
+        fadeTween.Completed:Wait()
         keyMusic:Stop()
+        keyMusic.Volume = 0.18 -- Reset volume for next play
     end
 end
 local function playTransitionMusic()
@@ -239,7 +245,12 @@ local function playTransitionMusic()
 end
 local function stopTransitionMusic()
     if transitionMusic.IsPlaying then
+        -- Fading out the transition music
+        local fadeTween = TweenService:Create(transitionMusic, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Volume = 0})
+        fadeTween:Play()
+        fadeTween.Completed:Wait()
         transitionMusic:Stop()
+        transitionMusic.Volume = 0.45 -- Reset volume for next play
     end
 end
 
@@ -313,9 +324,16 @@ applyTheme(currentTheme)
 -- Klick-Sound Setup
 local clickSound = Instance.new("Sound")
 clickSound.Name = "JoHubClickSound"
-clickSound.SoundId = "rbxassetid://1843520827" -- Roblox UI Click Sound (oder beliebig ersetzen)
+clickSound.SoundId = "rbxassetid://87437544236708" -- Klick-Sound (Click)
 clickSound.Volume = 0.5
 clickSound.Parent = screenGui
+
+-- Hover-Sound Setup
+local hoverSound = Instance.new("Sound")
+hoverSound.Name = "JoHubHoverSound"
+hoverSound.SoundId = "rbxassetid://18133558673" -- UI_Select Sound (Hover)
+hoverSound.Volume = 0.4
+hoverSound.Parent = screenGui
 
 local function playClick()
     if clickSound.IsLoaded then
@@ -323,6 +341,15 @@ local function playClick()
     else
         clickSound.Loaded:Wait()
         clickSound:Play()
+    end
+end
+
+local function playHover()
+    if hoverSound.IsLoaded then
+        hoverSound:Play()
+    else
+        hoverSound.Loaded:Wait()
+        hoverSound:Play()
     end
 end
 
@@ -382,6 +409,7 @@ function createCatalogButtons()
         table.insert(catalogButtons, btn)
         TweenService:Create(btn, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
         btn.MouseEnter:Connect(function()
+            playHover()
             TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = getHoverColor(currentTheme.Color)}):Play()
         end)
         btn.MouseLeave:Connect(function()
@@ -492,6 +520,7 @@ function showCatalogContent(index)
                 TweenService:Create(btn, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
             end)
             btn.MouseEnter:Connect(function()
+                playHover()
                 TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = getHoverColor(currentTheme.Color)}):Play()
             end)
             btn.MouseLeave:Connect(function()
@@ -547,6 +576,7 @@ function showCatalogContent(index)
             local tbtnCorner = Instance.new("UICorner", tbtn)
             tbtnCorner.CornerRadius = UDim.new(0, 8)
             TweenService:Create(tbtn, TweenInfo.new(0.4), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
+            tbtn.MouseEnter:Connect(playHover)
             tbtn.MouseButton1Click:Connect(playClick)
             tbtn.MouseButton1Click:Connect(function()
                 currentTheme = th
@@ -569,6 +599,7 @@ function showCatalogContent(index)
         local removeBtnCorner = Instance.new("UICorner", removeBtn)
         removeBtnCorner.CornerRadius = UDim.new(0, 8)
         TweenService:Create(removeBtn, TweenInfo.new(0.4), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
+        removeBtn.MouseEnter:Connect(playHover)
         removeBtn.MouseButton1Click:Connect(playClick)
         removeBtn.MouseButton1Click:Connect(function()
             screenGui:Destroy()
