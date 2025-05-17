@@ -99,10 +99,6 @@ keyBox.ClipsDescendants = false
 keyBox.TextEditable = true
 local keyBoxCorner = Instance.new("UICorner", keyBox)
 keyBoxCorner.CornerRadius = UDim.new(0, 12)
--- Automatisches Scrollen nach rechts, damit immer das Ende sichtbar ist
-keyBox:GetPropertyChangedSignal("Text"):Connect(function()
-    keyBox.CursorPosition = -1
-end)
 
 local loginBtn = Instance.new("TextButton")
 loginBtn.Text = "Login"
@@ -675,6 +671,16 @@ local function finishLoginAndShowHub()
     end)
 end
 
+-- Key-Prüfung: Exakter Vergleich pro Zeile
+local function isKeyValid(result, key)
+    for line in string.gmatch(result, "[^\r\n]+") do
+        if line == key then
+            return true
+        end
+    end
+    return false
+end
+
 local function checkKeyAndLogin()
     local username = player.Name
     local isBypass = false
@@ -699,7 +705,7 @@ local function checkKeyAndLogin()
         local success, result = pcall(function()
             return game:HttpGet(KEY_URL)
         end)
-        if success and result and string.find(result, key) then
+        if success and result and isKeyValid(result, key) then
             showNotify("Key korrekt!", Color3.fromRGB(0,200,100))
             wait(0.7)
             finishLoginAndShowHub()
