@@ -502,11 +502,11 @@ function showCatalogContent(index)
             return f
         end
 
-        -- 1. Feld: Profilbild
+        -- 1. Feld: Avatar + Begrüßung
         local avatarField = createField(1,1)
         local avatarImg = Instance.new("ImageLabel")
         avatarImg.Size = UDim2.new(0, 70, 0, 70)
-        avatarImg.Position = UDim2.new(0, 20, 0, 20)
+        avatarImg.Position = UDim2.new(0, 20, 0, 16)
         avatarImg.BackgroundTransparency = 1
         avatarImg.Image = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=420&height=420&format=png", player.UserId)
         avatarImg.ZIndex = avatarField.ZIndex + 1
@@ -514,92 +514,41 @@ function showCatalogContent(index)
         local avatarCorner = Instance.new("UICorner", avatarImg)
         avatarCorner.CornerRadius = UDim.new(1,0)
         avatarImg.ImageTransparency = 0.08
-        local nameLabel = Instance.new("TextLabel")
-        nameLabel.Text = player.Name
-        nameLabel.Font = Enum.Font.GothamBold
-        nameLabel.TextSize = 20
-        nameLabel.TextColor3 = getBrightTextColor()
-        nameLabel.BackgroundTransparency = 1
-        nameLabel.Position = UDim2.new(0, 100, 0, 35)
-        nameLabel.Size = UDim2.new(1,-110,0,30)
-        nameLabel.ZIndex = avatarField.ZIndex + 1
-        nameLabel.Parent = avatarField
-
-        -- 2. Feld: Willkommen, USER! ❤️ mit Animation, darunter Datum/Uhrzeit/Session
-        local welcomeField = createField(2,1)
+        -- Begrüßung unter dem Avatar
         local welcome = Instance.new("TextLabel")
-        welcome.Text = ""
+        welcome.Text = "Willkommen, "..player.Name.."!"
         welcome.Font = Enum.Font.GothamBold
         welcome.TextSize = 22
         welcome.TextColor3 = getBrightTextColor()
         welcome.BackgroundTransparency = 1
-        welcome.Position = UDim2.new(0,16,0,10)
-        welcome.Size = UDim2.new(1,-32,0,32)
-        welcome.ZIndex = welcomeField.ZIndex + 1
-        welcome.TextXAlignment = Enum.TextXAlignment.Left
-        welcome.Parent = welcomeField
-        -- Herz als Label (wird mit animiert)
-        local heart = Instance.new("TextLabel")
-        heart.Text = ""
-        heart.Font = Enum.Font.GothamBold
-        heart.TextSize = 22
-        heart.TextColor3 = Color3.fromRGB(255,0,80)
-        heart.BackgroundTransparency = 1
-        heart.Position = UDim2.new(0, 0, 0, 0)
-        heart.Size = UDim2.new(0, 32, 0, 32)
-        heart.ZIndex = welcome.ZIndex + 1
-        heart.Parent = welcomeField
-        -- Schreib-/Lösch-Animation mit Herz
-        spawn(function()
-            local baseText = "Willkommen, "..player.Name.."!"
-            while mainPanel.Parent do
-                -- Schreiben
-                for i = 1, #baseText do
-                    welcome.Text = string.sub(baseText, 1, i)
-                    if i == #baseText then
-                        heart.Text = " ❤️"
-                    else
-                        heart.Text = ""
-                    end
-                    heart.Position = UDim2.new(0, welcome.TextBounds.X + 8, 0, 0)
-                    wait(0.045)
-                end
-                wait(1.2)
-                -- Löschen (Backspace-Effekt)
-                for i = #baseText, 0, -1 do
-                    welcome.Text = string.sub(baseText, 1, i)
-                    if i == #baseText then
-                        heart.Text = " ❤️"
-                    else
-                        heart.Text = ""
-                    end
-                    heart.Position = UDim2.new(0, welcome.TextBounds.X + 8, 0, 0)
-                    wait(0.025)
-                end
-                wait(2.5)
-            end
-        end)
-        -- Datum/Uhrzeit/Session darunter
+        welcome.Position = UDim2.new(0, 0, 0, 96)
+        welcome.Size = UDim2.new(1, 0, 0, 32)
+        welcome.ZIndex = avatarField.ZIndex + 1
+        welcome.TextXAlignment = Enum.TextXAlignment.Center
+        welcome.Parent = avatarField
+
+        -- 2. Feld: Datum/Uhrzeit, Session (ohne Begrüßung)
+        local infoField = createField(2,1)
         local dateLabel = Instance.new("TextLabel")
         dateLabel.Text = ""
         dateLabel.Font = Enum.Font.Gotham
         dateLabel.TextSize = 16
         dateLabel.TextColor3 = getBrightTextColor()
         dateLabel.BackgroundTransparency = 1
-        dateLabel.Position = UDim2.new(0,16,0,44)
+        dateLabel.Position = UDim2.new(0,16,0,18)
         dateLabel.Size = UDim2.new(1,-32,0,20)
-        dateLabel.ZIndex = welcomeField.ZIndex + 1
-        dateLabel.Parent = welcomeField
+        dateLabel.ZIndex = infoField.ZIndex + 1
+        dateLabel.Parent = infoField
         local sessionLabel = Instance.new("TextLabel")
         sessionLabel.Text = "Session: 0s"
         sessionLabel.Font = Enum.Font.Gotham
         sessionLabel.TextSize = 16
         sessionLabel.TextColor3 = getBrightTextColor()
         sessionLabel.BackgroundTransparency = 1
-        sessionLabel.Position = UDim2.new(0,16,0,66)
+        sessionLabel.Position = UDim2.new(0,16,0,44)
         sessionLabel.Size = UDim2.new(1,-32,0,20)
-        sessionLabel.ZIndex = welcomeField.ZIndex + 1
-        sessionLabel.Parent = welcomeField
+        sessionLabel.ZIndex = infoField.ZIndex + 1
+        sessionLabel.Parent = infoField
         spawn(function()
             while mainPanel.Parent do
                 local now = os.date("%d.%m.%Y %H:%M:%S")
