@@ -16,4 +16,8 @@ Scripts.list = {
     {Name = "EMPTY 8", Code = "print('Script 10 ausgeführt!')"}
 }
 
+-- Wenn Buttons/Text für Scripts erstellt werden, setze jeweils:
+-- btn.ZIndex = (parent.ZIndex or 1) + 1
+-- btn.TextLabel.ZIndex = btn.ZIndex + 1 (falls explizit TextLabel)
+
 return Scripts

@@ -403,9 +403,16 @@ function createCatalogButtons()
         btn.BackgroundTransparency = 1
         btn.TextTransparency = 1
         btn.AutoButtonColor = false
+        btn.ZIndex = mainFrame.ZIndex + 1 -- ZIndex +1 für Button
         btn.Parent = catalogBar
         local btnCorner = Instance.new("UICorner", btn)
         btnCorner.CornerRadius = UDim.new(0, 16)
+        -- TextLabel im Button explizit ZIndex +1
+        for _,child in ipairs(btn:GetChildren()) do
+            if child:IsA("TextLabel") then
+                child.ZIndex = btn.ZIndex + 1
+            end
+        end
         table.insert(catalogButtons, btn)
         TweenService:Create(btn, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
         btn.MouseEnter:Connect(function()
@@ -768,6 +775,7 @@ function showCatalogContent(index)
         scrollFrame.ScrollBarThickness = 8
         scrollFrame.BackgroundTransparency = 1
         scrollFrame.BorderSizePixel = 0
+        scrollFrame.ZIndex = mainFrame.ZIndex + 1 -- ZIndex +1 für Script-Katalog
         scrollFrame.Parent = catalogContainer
         scrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
         scrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
@@ -777,6 +785,7 @@ function showCatalogContent(index)
         listLayout.Parent = scrollFrame
         listLayout.SortOrder = Enum.SortOrder.LayoutOrder
         listLayout.Padding = UDim.new(0, 10)
+        listLayout.ZIndex = scrollFrame.ZIndex + 1
 
         local padding = Instance.new("UIPadding")
         padding.Parent = scrollFrame
@@ -795,6 +804,7 @@ function showCatalogContent(index)
             btn.TextSize = 18
             btn.BackgroundTransparency = 1
             btn.TextTransparency = 1
+            btn.ZIndex = scrollFrame.ZIndex + 1 -- ZIndex +1 für Script-Button
             btn.Parent = scrollFrame
             local btnCorner = Instance.new("UICorner", btn)
             btnCorner.CornerRadius = UDim.new(0, 10)
@@ -830,6 +840,7 @@ function showCatalogContent(index)
         local settingsFrame = Instance.new("Frame")
         settingsFrame.Size = UDim2.new(1,0,1,0)
         settingsFrame.BackgroundTransparency = 1 -- Transparent machen
+        settingsFrame.ZIndex = mainFrame.ZIndex + 1 -- ZIndex +1 für Settings
         settingsFrame.Parent = catalogContainer
         catalogContent = settingsFrame
         local themeLabel = Instance.new("TextLabel")
@@ -841,6 +852,7 @@ function showCatalogContent(index)
         themeLabel.Font = Enum.Font.Gotham
         themeLabel.TextSize = 18
         themeLabel.TextTransparency = 1
+        themeLabel.ZIndex = settingsFrame.ZIndex + 1
         themeLabel.Parent = settingsFrame
         TweenService:Create(themeLabel, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
         for i,th in ipairs(themes) do
@@ -854,6 +866,7 @@ function showCatalogContent(index)
             tbtn.TextSize = 16
             tbtn.BackgroundTransparency = 1
             tbtn.TextTransparency = 1
+            tbtn.ZIndex = settingsFrame.ZIndex + 1
             tbtn.Parent = settingsFrame
             local tbtnCorner = Instance.new("UICorner", tbtn)
             tbtnCorner.CornerRadius = UDim.new(0, 8)
@@ -877,6 +890,7 @@ function showCatalogContent(index)
         removeBtn.TextSize = 16
         removeBtn.BackgroundTransparency = 1
         removeBtn.TextTransparency = 1
+        removeBtn.ZIndex = settingsFrame.ZIndex + 1
         removeBtn.Parent = settingsFrame
         local removeBtnCorner = Instance.new("UICorner", removeBtn)
         removeBtnCorner.CornerRadius = UDim.new(0, 8)
