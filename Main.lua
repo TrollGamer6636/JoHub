@@ -539,25 +539,119 @@ local function showNotify(text, color, parent, duration)
     notify.Visible = false
 end
 
-local function showWelcome()
-    local welcome = Instance.new("TextLabel")
-    welcome.Text = "Willkommen, "..player.Name
-    welcome.Size = UDim2.new(0, 340, 0, 54)
-    welcome.Position = UDim2.new(0.5, -170, 0, -50) -- Positioned above "JoHub" text with spacing
-    welcome.BackgroundTransparency = 0.2
-    welcome.BackgroundColor3 = Color3.fromRGB(60,0,80)
-    welcome.TextColor3 = Color3.fromRGB(255,255,255)
-    welcome.Font = Enum.Font.GothamBold
-    welcome.TextSize = 28
-    welcome.TextTransparency = 1
-    welcome.Parent = mainFrame
-    local wcCorner = Instance.new("UICorner", welcome)
-    wcCorner.CornerRadius = UDim.new(1,0)
-    TweenService:Create(welcome, TweenInfo.new(0.5), {TextTransparency = 0, BackgroundTransparency = 0.2}):Play()
-    wait(5) -- Extended display duration to 5 seconds
-    TweenService:Create(welcome, TweenInfo.new(0.5), {TextTransparency = 1, BackgroundTransparency = 1}):Play()
-    wait(0.5)
-    welcome:Destroy()
+local function showWelcomeAnimated(callback)
+    -- Erstelle zentrierten Screen
+    local welcomeFrame = Instance.new("Frame")
+    welcomeFrame.Size = UDim2.new(1,0,1,0)
+    welcomeFrame.BackgroundTransparency = 1
+    welcomeFrame.ZIndex = 100
+    welcomeFrame.Parent = screenGui
+
+    -- JoHub-Logo darunter (optional, falls gewünscht)
+    local logoText = Instance.new("TextLabel")
+    logoText.Text = "JoHub"
+    logoText.Font = Enum.Font.GothamBlack
+    logoText.TextSize = 48
+    logoText.TextColor3 = Color3.fromRGB(255,0,200)
+    logoText.BackgroundTransparency = 1
+    logoText.AnchorPoint = Vector2.new(0.5,0)
+    logoText.Position = UDim2.new(0.5,0,0.5,40)
+    logoText.Size = UDim2.new(0, 400, 0, 60)
+    logoText.ZIndex = 101
+    logoText.Parent = welcomeFrame
+    logoText.TextTransparency = 1
+    TweenService:Create(logoText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+
+    local welcomeText = Instance.new("TextLabel")
+    welcomeText.Text = ""
+    welcomeText.Font = Enum.Font.GothamBold
+    welcomeText.TextSize = 38
+    welcomeText.TextColor3 = Color3.fromRGB(255,255,255)
+    welcomeText.BackgroundTransparency = 1
+    welcomeText.AnchorPoint = Vector2.new(0.5,0.5)
+    welcomeText.Position = UDim2.new(0.5,0,0.5,-10)
+    welcomeText.Size = UDim2.new(0, 500, 0, 60)
+    welcomeText.Parent = welcomeFrame
+    welcomeText.ZIndex = 101
+    welcomeText.TextTransparency = 1
+    TweenService:Create(welcomeText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+
+    -- Schreibanimation
+    local fullText = "Willkommen, "..player.Name
+    for i = 1, #fullText do
+        welcomeText.Text = string.sub(fullText, 1, i)
+        wait(0.045)
+    end
+
+    -- Warte kurz, dann Herzen animieren
+    wait(0.2)
+    local textWidth = welcomeText.TextBounds.X
+    local heartLeft = Instance.new("TextLabel")
+    heartLeft.Text = "❤️"
+    heartLeft.Font = Enum.Font.GothamBold
+    heartLeft.TextSize = 38
+    heartLeft.TextColor3 = Color3.fromRGB(255,0,120)
+    heartLeft.BackgroundTransparency = 1
+    heartLeft.AnchorPoint = Vector2.new(1,0.5)
+    heartLeft.Position = UDim2.new(0.5, -textWidth/2 - 10, 0.5, -10)
+    heartLeft.Size = UDim2.new(0, 40, 0, 60)
+    heartLeft.TextTransparency = 1
+    heartLeft.Parent = welcomeFrame
+    heartLeft.ZIndex = 101
+
+    local heartRight = Instance.new("TextLabel")
+    heartRight.Text = "❤️"
+    heartRight.Font = Enum.Font.GothamBold
+    heartRight.TextSize = 38
+    heartRight.TextColor3 = Color3.fromRGB(255,0,120)
+    heartRight.BackgroundTransparency = 1
+    heartRight.AnchorPoint = Vector2.new(0,0.5)
+    heartRight.Position = UDim2.new(0.5, textWidth/2 + 10, 0.5, -10)
+    heartRight.Size = UDim2.new(0, 40, 0, 60)
+    heartRight.TextTransparency = 1
+    heartRight.Parent = welcomeFrame
+    heartRight.ZIndex = 101
+
+    -- Herzen von außen nach innen animieren
+    heartLeft.Position = UDim2.new(0.5, -textWidth/2 - 80, 0.5, -10)
+    heartRight.Position = UDim2.new(0.5, textWidth/2 + 80, 0.5, -10)
+    TweenService:Create(heartLeft, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        TextTransparency = 0,
+        Position = UDim2.new(0.5, -textWidth/2 - 30, 0.5, -10)
+    }):Play()
+    TweenService:Create(heartRight, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        TextTransparency = 0,
+        Position = UDim2.new(0.5, textWidth/2 + 30, 0.5, -10)
+    }):Play()
+    wait(0.6)
+
+    -- Herzen "pulsieren" lassen
+    for i=1,2 do
+        TweenService:Create(heartLeft, TweenInfo.new(0.15), {TextSize = 44}):Play()
+        TweenService:Create(heartRight, TweenInfo.new(0.15), {TextSize = 44}):Play()
+        wait(0.15)
+        TweenService:Create(heartLeft, TweenInfo.new(0.15), {TextSize = 38}):Play()
+        TweenService:Create(heartRight, TweenInfo.new(0.15), {TextSize = 38}):Play()
+        wait(0.12)
+    end
+
+    -- Kurz stehen lassen
+    wait(1.5)
+
+    -- Alles ausblenden (Text, Herzen, Logo)
+    TweenService:Create(welcomeText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+    TweenService:Create(logoText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+    TweenService:Create(heartLeft, TweenInfo.new(0.5), {
+        TextTransparency = 1,
+        Position = UDim2.new(0.5, -textWidth/2 - 120, 0.5, -10)
+    }):Play()
+    TweenService:Create(heartRight, TweenInfo.new(0.5), {
+        TextTransparency = 1,
+        Position = UDim2.new(0.5, textWidth/2 + 120, 0.5, -10)
+    }):Play()
+    wait(0.6)
+    welcomeFrame:Destroy()
+    if callback then callback() end
 end
 
 local function setDescendantsVisible(parent, visible, animate)
@@ -665,11 +759,13 @@ local function finishLoginAndShowHub()
         TweenService:Create(loading, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
         wait(0.3)
         loading:Destroy()
-        mainFrame.Visible = true
-        createCatalogButtons()
-        showCatalogContent(currentCatalog)
-        setJoHubVisible(true)
-        showWelcome()
+        -- Zeige neuen Welcome-Screen mit Animation
+        showWelcomeAnimated(function()
+            mainFrame.Visible = true
+            createCatalogButtons()
+            showCatalogContent(currentCatalog)
+            setJoHubVisible(true)
+        end)
     end)
 end
 
