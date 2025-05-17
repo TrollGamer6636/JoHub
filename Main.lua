@@ -98,7 +98,6 @@ keyBox.TextWrapped = false
 keyBox.ClipsDescendants = true -- Clipping aktivieren, damit Text nicht "rausläuft"
 keyBox.TextEditable = true
 keyBox.TextTruncate = Enum.TextTruncate.AtEnd -- Text am Ende abschneiden, falls zu lang
-keyBox.TextMasked = true -- Key-Eingabe maskieren (zensieren)
 local keyBoxCorner = Instance.new("UICorner", keyBox)
 keyBoxCorner.CornerRadius = UDim.new(0, 12)
 
