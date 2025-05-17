@@ -27,9 +27,9 @@ local KEY_URL = "https://pastebin.com/raw/pukeNBLN"
 local BYPASS_USERS = {"k5d6r", "Roblox"} -- Hier beliebig viele Usernamen eintragen
 
 -- Module laden
-local ThemeManager = require(script.Parent.modules.ThemeManager)
-local KeySystem = require(script.Parent.modules.KeySystem)
-local Catalog = require(script.Parent.modules.Catalog)
+local ThemeManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/TrollGamer6636/JoHub/refs/heads/main/modules/ThemeManager.lua"))()
+local KeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/TrollGamer6636/JoHub/refs/heads/main/modules/KeySystem.lua"))()
+local Catalog = loadstring(game:HttpGet("https://raw.githubusercontent.com/TrollGamer6636/JoHub/refs/heads/main/modules/Catalog.lua"))()
 
 -- Theme-Konfiguration aus Modul
 local themes = ThemeManager.themes
