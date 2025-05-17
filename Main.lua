@@ -219,7 +219,7 @@ keyMusic.Parent = screenGui
 
 local transitionMusic = Instance.new("Sound")
 transitionMusic.Name = "JoHubTransitionMusic"
-transitionMusic.SoundId = "rbxassetid://1843520827" -- Kurze Übergangsmusik (z.B. UI Jingle)
+transitionMusic.SoundId = "rbxassetid://9047885144" -- Neue Übergangsmusik-ID
 transitionMusic.Volume = 0.45
 transitionMusic.Looped = false
 transitionMusic.Parent = screenGui
