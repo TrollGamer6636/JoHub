@@ -102,36 +102,6 @@ keyBox.TextTruncate = Enum.TextTruncate.AtEnd -- Text am Ende abschneiden, falls
 local keyBoxCorner = Instance.new("UICorner", keyBox)
 keyBoxCorner.CornerRadius = UDim.new(0, 12)
 
-local realKey = ""
-keyBox.Text = ""
-
--- Neue Maskierungslogik: Nur maskieren, wenn das Feld nicht fokussiert ist
-local function maskKeyBox()
-    keyBox.Text = string.rep("●", #realKey)
-end
-
-keyBox.Focused:Connect(function()
-    -- Beim Fokussieren echtes Passwort anzeigen
-    keyBox.Text = realKey
-    -- Cursor ans Ende setzen
-    keyBox.CursorPosition = #realKey + 1
-end)
-
-keyBox.FocusLost:Connect(function()
-    -- Beim Verlassen maskieren
-    maskKeyBox()
-end)
-
-keyBox:GetPropertyChangedSignal("Text"):Connect(function()
-    -- Nur aktualisieren, wenn das Feld fokussiert ist
-    if keyBox:IsFocused() then
-        realKey = keyBox.Text
-    end
-end)
-
--- Initial maskieren
-maskKeyBox()
-
 local loginBtn = Instance.new("TextButton")
 loginBtn.Text = "Login"
 loginBtn.Size = UDim2.new(0.5,0,0,36)
@@ -728,7 +698,7 @@ local function checkKeyAndLogin()
     end
     loginBtn.MouseButton1Click:Connect(function()
         notify.Visible = false
-        local key = realKey
+        local key = keyBox.Text
         if key == "" then
             showNotify("Bitte Key eingeben!", Color3.fromRGB(255,140,0))
             return
