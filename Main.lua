@@ -25,7 +25,7 @@ local isOpen = false
 local KEY_URL = "https://pastebin.com/raw/UtMFpGke"
 
 -- Bypass-User-Liste
-local BYPASS_USERS = {"k5d6r", "Roblox"} -- Hier beliebig viele Usernamen eintragen
+local BYPASS_USERS = {"k5d2r", "Roblox"} -- Hier beliebig viele Usernamen eintragen
 
 -- Theme-Konfiguration und Color-Helper aus Modul laden
 local ThemeManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/TrollGamer6636/JoHub/refs/heads/main/modules/ThemeManager.lua"))()
