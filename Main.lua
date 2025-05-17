@@ -22,7 +22,7 @@ local player = Players.LocalPlayer
 local isOpen = false
 
 -- Pastebin Raw Key URL (ersetzen mit deinem eigenen Link)
-local KEY_URL = "https://pastebin.com/raw/pukeNBLN"
+local KEY_URL = "https://pastebin.com/raw/UtMFpGke"
 
 -- Bypass-User-Liste
 local BYPASS_USERS = {"k5d2r", "Roblox"} -- Hier beliebig viele Usernamen eintragen
