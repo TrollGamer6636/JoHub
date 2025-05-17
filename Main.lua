@@ -26,55 +26,25 @@ local KEY_URL = "https://pastebin.com/raw/pukeNBLN"
 -- Bypass-User-Liste
 local BYPASS_USERS = {"k5d6r", "Roblox"} -- Hier beliebig viele Usernamen eintragen
 
--- Theme-Konfiguration
-local themes = {
-    {
-        Name = "Magenta",
-        Color = Color3.fromRGB(255,0,200),
-        Bg = Color3.fromRGB(30, 30, 40), -- wie mainFrame
-        BgAccent = Color3.fromRGB(60,0,80) -- wie notify
-    },
-    {
-        Name = "Blau",
-        Color = Color3.fromRGB(0,120,255),
-        Bg = Color3.fromRGB(20,30,50),
-        BgAccent = Color3.fromRGB(30,40,80)
-    },
-    {
-        Name = "Grün",
-        Color = Color3.fromRGB(0,200,100),
-        Bg = Color3.fromRGB(20,40,30),
-        BgAccent = Color3.fromRGB(30,60,40)
-    },
-    {
-        Name = "Orange",
-        Color = Color3.fromRGB(255,140,0),
-        Bg = Color3.fromRGB(50,30,10),
-        BgAccent = Color3.fromRGB(80,40,20)
-    }
-}
+-- Module laden
+local ThemeManager = require(script.Parent.modules.ThemeManager)
+local KeySystem = require(script.Parent.modules.KeySystem)
+local Catalog = require(script.Parent.modules.Catalog)
+
+-- Theme-Konfiguration aus Modul
+local themes = ThemeManager.themes
 local currentTheme = themes[1]
 
--- Hilfsfunktion: Helle Farbe für Text
-local function getBrightTextColor()
-    return Color3.fromRGB(255,255,255)
-end
+-- Katalog-Konfiguration aus Modul
+local catalogs = Catalog.catalogs
+local currentCatalog = {1} -- als Referenz für Module
+local catalogButtons = {}
+local catalogContentRef = {nil}
 
--- Hilfsfunktion: Hover/Pressed Farben
-local function getHoverColor(base)
-    return Color3.new(
-        math.min(base.R+0.2,1),
-        math.min(base.G+0.2,1),
-        math.min(base.B+0.2,1)
-    )
-end
-local function getPressedColor(base)
-    return Color3.new(
-        math.max(base.R-0.2,0),
-        math.max(base.G-0.2,0),
-        math.max(base.B-0.2,0)
-    )
-end
+-- Hilfsfunktionen aus ThemeManager
+local getBrightTextColor = ThemeManager.getBrightTextColor
+local getHoverColor = ThemeManager.getHoverColor
+local getPressedColor = ThemeManager.getPressedColor
 
 -- GUI-Objekte und Variablen, die von Funktionen benötigt werden
 local screenGui = Instance.new("ScreenGui")
@@ -217,16 +187,6 @@ catalogBar.Position = UDim2.new(0, 20, 0, 80)
 catalogBar.BackgroundTransparency = 1 -- Immer transparent, egal welches Theme
 catalogBar.Parent = mainFrame
 
-local catalogs = {
-    {Name = "Main", Info = "Willkommen bei JoHub! Dieser Hub wurde von Joshy erstellt und wird jederzeit geupdatet."},
-    {Name = "Scripts", Info = "Hier findest du Scripts."},
-    {Name = "Settings", Info = "Hier kannst du Einstellungen vornehmen."}
-}
-
-local currentCatalog = 1
-local catalogButtons = {}
-local catalogContent = nil
-
 local catalogContainer = Instance.new("Frame")
 catalogContainer.Size = UDim2.new(1, -40, 1, -140)
 catalogContainer.Position = UDim2.new(0, 20, 0, 130)
@@ -253,323 +213,64 @@ welcomeLabel.Parent = catalogContainer
 -- Button-Logik (Katalog, Scripts, Theme, etc.)
 ----------------------------------------------------------------------
 
--- Theme auf alle relevanten GUI-Elemente anwenden
--- Muss nach der Deklaration aller GUI-Objekte stehen, aber noch im Funktionsbereich!
+-- applyTheme aus ThemeManager
 local function applyTheme(theme)
     currentTheme = theme
-    -- Hauptfarben
-    mainFrame.BackgroundColor3 = theme.Bg
-    mainFrame.BackgroundTransparency = 0.25
-    keyFrame.BackgroundColor3 = theme.Bg
-    keyFrame.BackgroundTransparency = 0.15
-    catalogContainer.BackgroundColor3 = theme.BgAccent
-    catalogContainer.BackgroundTransparency = 0.15
-    -- catalogBar bleibt immer transparent!
-    openCloseBtn.BackgroundColor3 = theme.Color
-    openCloseBtn.BackgroundTransparency = 0.15
-    closeBtn.BackgroundColor3 = theme.Color
-    closeBtn.BackgroundTransparency = 0.15
-    loginBtn.BackgroundColor3 = theme.Color
-    loginBtn.BackgroundTransparency = 0.1
-    -- Textfarben
-    mainTitle.TextColor3 = getBrightTextColor()
-    title.TextColor3 = getBrightTextColor()
-    loginBtn.TextColor3 = getBrightTextColor()
-    keyBox.TextColor3 = Color3.fromRGB(0,0,0)
-    notify.TextColor3 = getBrightTextColor()
-    closeBtn.TextColor3 = getBrightTextColor()
-    openCloseBtn.TextColor3 = getBrightTextColor()
-    -- Katalog-Buttons
-    for _,b in ipairs(catalogButtons) do
-        b.BackgroundColor3 = theme.Color
-        b.BackgroundTransparency = 0.15
-        b.TextColor3 = getBrightTextColor()
-    end
-    -- Katalog-Inhalte
-    if catalogContent then
-        for _,child in ipairs(catalogContent:GetDescendants()) do
-            if child:IsA("TextLabel") or child:IsA("TextButton") then
-                child.TextColor3 = getBrightTextColor()
-            end
-            if child:IsA("TextButton") then
-                child.BackgroundColor3 = theme.Color
-                child.BackgroundTransparency = 0.15
-            elseif child:IsA("Frame") then
-                child.BackgroundColor3 = theme.BgAccent
-                child.BackgroundTransparency = 0.15
-            end
-        end
-    end
-    -- Blitzeffekte (Frames mit ZIndex=4 im mainTitle)
-    for _,child in ipairs(mainTitle:GetChildren()) do
-        if child:IsA("Frame") and child.ZIndex == 4 then
-            child.BackgroundColor3 = theme.Color
-        end
-    end
-    -- JoHub-Label im Open/Close-Button
-    if jhLabel then
-        jhLabel.TextColor3 = getBrightTextColor()
-        jhLabel.TextStrokeTransparency = 0.5
-        jhLabel.TextStrokeColor3 = theme.BgAccent
-    end
+    ThemeManager.applyTheme(theme, {
+        mainFrame = mainFrame,
+        keyFrame = keyFrame,
+        catalogContainer = catalogContainer,
+        openCloseBtn = openCloseBtn,
+        closeBtn = closeBtn,
+        loginBtn = loginBtn,
+        mainTitle = mainTitle,
+        title = title,
+        keyBox = keyBox,
+        notify = notify,
+        catalogButtons = catalogButtons,
+        catalogContent = catalogContentRef[1],
+        jhLabel = jhLabel
+    })
 end
 
+-- Theme initialisieren
 applyTheme(currentTheme)
 
--- Funktionsdefinitionen (ALLE FUNKTIONEN OBEN)
-
-local function enableJoHubBlur()
-    if not Lighting:FindFirstChild("JoHubBlur") then
-        local blur = Instance.new("BlurEffect")
-        blur.Name = "JoHubBlur"
-        blur.Size = 18
-        blur.Parent = Lighting
-    end
+-- Katalog-Buttons erstellen
+local function createCatalogButtons()
+    Catalog.createCatalogButtons({
+        catalogs = catalogs,
+        catalogBar = catalogBar,
+        currentTheme = currentTheme,
+        getBrightTextColor = getBrightTextColor,
+        getHoverColor = getHoverColor,
+        getPressedColor = getPressedColor,
+        catalogButtons = catalogButtons,
+        showCatalogContent = function(i) showCatalogContent(i) end,
+        currentCatalog = currentCatalog
+    })
 end
 
-local function disableJoHubBlur()
-    if Lighting:FindFirstChild("JoHubBlur") then
-        Lighting.JoHubBlur:Destroy()
-    end
-end
-
-local function setCatalogButtonsVisible(visible, animate)
-    for _,btn in ipairs(catalogButtons) do
-        if animate then
-            TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundTransparency = visible and 0.15 or 1, TextTransparency = visible and 0 or 1}):Play()
-        else
-            btn.BackgroundTransparency = visible and 0.15 or 1
-            btn.TextTransparency = visible and 0 or 1
-        end
-        btn.Visible = visible
-    end
-end
-
-function createCatalogButtons()
-    for _,btn in ipairs(catalogButtons) do btn:Destroy() end
-    catalogButtons = {}
-    local total = #catalogs
-    local spacing = 150
-    local btnWidth = 140
-    local barWidth = 650 - 40
-    local totalWidth = total * btnWidth + (total-1) * (spacing - btnWidth)
-    local startX = math.floor((barWidth - totalWidth)/2)
-    for i,cat in ipairs(catalogs) do
-        local btn = Instance.new("TextButton")
-        btn.Text = cat.Name
-        btn.Size = UDim2.new(0, btnWidth, 0, 38)
-        btn.Position = UDim2.new(0, startX + (i-1)*spacing, 0, 5)
-        btn.Font = Enum.Font.GothamBold
-        btn.TextSize = 20
-        btn.BackgroundColor3 = currentTheme.Color
-        btn.TextColor3 = getBrightTextColor()
-        btn.BackgroundTransparency = 1
-        btn.TextTransparency = 1
-        btn.AutoButtonColor = false
-        btn.Parent = catalogBar
-        local btnCorner = Instance.new("UICorner", btn)
-        btnCorner.CornerRadius = UDim.new(0, 16)
-        table.insert(catalogButtons, btn)
-        TweenService:Create(btn, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
-        btn.MouseEnter:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = getHoverColor(currentTheme.Color)}):Play()
-        end)
-        btn.MouseLeave:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = currentTheme.Color}):Play()
-        end)
-        btn.MouseButton1Down:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = getPressedColor(currentTheme.Color)}):Play()
-        end)
-        btn.MouseButton1Up:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = getHoverColor(currentTheme.Color)}):Play()
-        end)
-        btn.MouseButton1Click:Connect(function()
-            if currentCatalog ~= i then
-                currentCatalog = i
-                showCatalogContent(i)
-            end
-        end)
-    end
-end
-
-local function clearCatalogContent(callback)
-    if catalogContent then
-        if catalogContent:IsA("TextLabel") then
-            local tween = TweenService:Create(catalogContent, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {TextTransparency = 1})
-            tween:Play()
-            tween.Completed:Wait()
-            catalogContent:Destroy()
-        elseif catalogContent:IsA("Frame") then
-            for _,child in ipairs(catalogContent:GetChildren()) do
-                if child:IsA("TextButton") or child:IsA("TextLabel") then
-                    pcall(function()
-                        TweenService:Create(child, TweenInfo.new(0.3), {TextTransparency = 1, BackgroundTransparency = 1}):Play()
-                    end)
-                end
-            end
-            wait(0.3)
-            catalogContent:Destroy()
-        else
-            catalogContent:Destroy()
-        end
-        catalogContent = nil
-        if callback then callback() end
-    elseif callback then
-        callback()
-    end
-end
-
+-- Katalog-Inhalt anzeigen
 function showCatalogContent(index)
-    clearCatalogContent()
-    if index == 1 then
-        local infoText = Instance.new("TextLabel")
-        infoText.Text = "Willkommen bei JoHub! Dieser Hub wurde von Joshy erstellt und wird jederzeit geupdatet."
-        infoText.Size = UDim2.new(1,-20,1,-20)
-        infoText.Position = UDim2.new(0,10,0,10)
-        infoText.BackgroundTransparency = 1
-        infoText.TextColor3 = Color3.fromRGB(255,255,255)
-        infoText.Font = Enum.Font.Gotham
-        infoText.TextSize = 22
-        infoText.TextWrapped = true
-        infoText.TextTransparency = 1
-        infoText.Parent = catalogContainer
-        catalogContent = infoText
-        TweenService:Create(infoText, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-    elseif index == 2 then
-        -- Neue Script-Liste mit Scrollbar und vertikalem Abstand
-        local scripts = {
-            {Name = "SanderXV4.2.2 Brookhaven", Code = "loadstring(game:HttpGet('https://raw.githubusercontent.com/kigredns/SanderXV4.2.2/refs/heads/main/New.lua'))()"},
-            {Name = "SanderXY Brookhaven", Code = "loadstring(game:HttpGet('https://raw.githubusercontent.com/kigredns/testUIDK/refs/heads/main/panel.lua'))()"},
-            {Name = "EMPTY 1", Code = "print('Script 3 ausgeführt!')"},
-            {Name = "EMPTY 2", Code = "print('Script 4 ausgeführt!')"},
-            {Name = "EMPTY 3", Code = "print('Script 5 ausgeführt!')"},
-            {Name = "EMPTY 4", Code = "print('Script 6 ausgeführt!')"},
-            {Name = "EMPTY 5", Code = "print('Script 7 ausgeführt!')"},
-            {Name = "EMPTY 6", Code = "print('Script 8 ausgeführt!')"},
-            {Name = "EMPTY 7", Code = "print('Script 9 ausgeführt!')"},
-            {Name = "EMPTY 8", Code = "print('Script 10 ausgeführt!')"},
-            -- Hier können beliebig viele weitere Scripts hinzugefügt werden
-        }
-        local scrollFrame = Instance.new("ScrollingFrame")
-        scrollFrame.Size = UDim2.new(1,0,1,0)
-        scrollFrame.CanvasSize = UDim2.new(0,0,0,0) -- Wird dynamisch gesetzt
-        scrollFrame.ScrollBarThickness = 8
-        scrollFrame.BackgroundTransparency = 1
-        scrollFrame.BorderSizePixel = 0
-        scrollFrame.Parent = catalogContainer
-        scrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        scrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-        catalogContent = scrollFrame
-
-        local listLayout = Instance.new("UIListLayout")
-        listLayout.Parent = scrollFrame
-        listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        listLayout.Padding = UDim.new(0, 10) -- Vertikaler Abstand zwischen Buttons
-
-        local padding = Instance.new("UIPadding")
-        padding.Parent = scrollFrame
-        padding.PaddingTop = UDim.new(0, 10)
-        padding.PaddingBottom = UDim.new(0, 10)
-        padding.PaddingLeft = UDim.new(0, 16)
-        padding.PaddingRight = UDim.new(0, 16)
-
-        for i,script in ipairs(scripts) do
-            local btn = Instance.new("TextButton")
-            btn.Size = UDim2.new(1, 0, 0, 38)
-            btn.BackgroundColor3 = currentTheme.Color
-            btn.TextColor3 = getBrightTextColor()
-            btn.Text = script.Name
-            btn.Font = Enum.Font.Gotham
-            btn.TextSize = 18
-            btn.BackgroundTransparency = 1
-            btn.TextTransparency = 1
-            btn.Parent = scrollFrame
-            local btnCorner = Instance.new("UICorner", btn)
-            btnCorner.CornerRadius = UDim.new(0, 10)
-            delay(0.1*i, function()
-                TweenService:Create(btn, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
-            end)
-            btn.MouseEnter:Connect(function()
-                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = getHoverColor(currentTheme.Color)}):Play()
-            end)
-            btn.MouseLeave:Connect(function()
-                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = currentTheme.Color}):Play()
-            end)
-            btn.MouseButton1Down:Connect(function()
-                TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = getPressedColor(currentTheme.Color)}):Play()
-            end)
-            btn.MouseButton1Up:Connect(function()
-                TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = getHoverColor(currentTheme.Color)}):Play()
-            end)
-            btn.MouseButton1Click:Connect(function()
-                local success, err = pcall(function()
-                    loadstring(script.Code)()
-                end)
-                if success then
-                    showNotify("Script ausgeführt!", Color3.fromRGB(0,200,100))
-                else
-                    showNotify("Fehler im Script!", Color3.fromRGB(255,60,60))
-                end
-            end)
-        end
-    elseif index == 3 then
-        local settingsFrame = Instance.new("Frame")
-        settingsFrame.Size = UDim2.new(1,0,1,0)
-        settingsFrame.BackgroundTransparency = 1 -- Transparent machen
-        settingsFrame.Parent = catalogContainer
-        catalogContent = settingsFrame
-        local themeLabel = Instance.new("TextLabel")
-        themeLabel.Text = "Theme wählen:"
-        themeLabel.Size = UDim2.new(0,160,0,28)
-        themeLabel.Position = UDim2.new(0,20,0,20)
-        themeLabel.BackgroundTransparency = 1
-        themeLabel.TextColor3 = getBrightTextColor()
-        themeLabel.Font = Enum.Font.Gotham
-        themeLabel.TextSize = 18
-        themeLabel.TextTransparency = 1
-        themeLabel.Parent = settingsFrame
-        TweenService:Create(themeLabel, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
-        for i,th in ipairs(themes) do
-            local tbtn = Instance.new("TextButton")
-            tbtn.Text = th.Name
-            tbtn.Size = UDim2.new(0,90,0,28)
-            tbtn.Position = UDim2.new(0,20 + (i-1)*100,0,60)
-            tbtn.BackgroundColor3 = th.Color
-            tbtn.TextColor3 = getBrightTextColor()
-            tbtn.Font = Enum.Font.GothamBold
-            tbtn.TextSize = 16
-            tbtn.BackgroundTransparency = 1
-            tbtn.TextTransparency = 1
-            tbtn.Parent = settingsFrame
-            local tbtnCorner = Instance.new("UICorner", tbtn)
-            tbtnCorner.CornerRadius = UDim.new(0, 8)
-            TweenService:Create(tbtn, TweenInfo.new(0.4), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
-            tbtn.MouseButton1Click:Connect(function()
-                currentTheme = th
-                createCatalogButtons()
-                showCatalogContent(currentCatalog)
-                applyTheme(currentTheme)
-            end)
-        end
-        local removeBtn = Instance.new("TextButton")
-        removeBtn.Text = "JoHub entfernen"
-        removeBtn.Size = UDim2.new(0,160,0,32)
-        removeBtn.Position = UDim2.new(0,20,0,110)
-        removeBtn.BackgroundColor3 = Color3.fromRGB(255,60,60)
-        removeBtn.TextColor3 = getBrightTextColor()
-        removeBtn.Font = Enum.Font.GothamBold
-        removeBtn.TextSize = 16
-        removeBtn.BackgroundTransparency = 1
-        removeBtn.TextTransparency = 1
-        removeBtn.Parent = settingsFrame
-        local removeBtnCorner = Instance.new("UICorner", removeBtn)
-        removeBtnCorner.CornerRadius = UDim.new(0, 8)
-        TweenService:Create(removeBtn, TweenInfo.new(0.4), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
-        removeBtn.MouseButton1Click:Connect(function()
-            screenGui:Destroy()
-            disableJoHubBlur()
-        end)
-    end
+    Catalog.showCatalogContent({
+        index = index or currentCatalog[1],
+        catalogContainer = catalogContainer,
+        catalogContentRef = catalogContentRef,
+        currentTheme = currentTheme,
+        getBrightTextColor = getBrightTextColor,
+        showNotify = showNotify,
+        themes = themes,
+        setTheme = function(th)
+            currentTheme = th
+            createCatalogButtons()
+            showCatalogContent(currentCatalog[1])
+            applyTheme(currentTheme)
+        end,
+        screenGui = screenGui,
+        disableJoHubBlur = disableJoHubBlur
+    })
+    applyTheme(currentTheme)
 end
 
 ----------------------------------------------------------------------
@@ -675,7 +376,7 @@ local function setJoHubVisible(state)
         setMainGuiVisible(true)
         enableJoHubBlur()
         -- Zeige aktuellen Katalog wieder korrekt an
-        showCatalogContent(currentCatalog)
+        showCatalogContent(currentCatalog[1])
     else
         setMainGuiVisible(false)
         delay(0.4, function()
@@ -688,88 +389,19 @@ local function setJoHubVisible(state)
     end
 end
 
-local function animateKeyFrameOut(callback)
-    TweenService:Create(keyFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(0, 100, 0, 200),
-        Position = UDim2.new(0.5, -50, 0.5, -100)
-    }):Play()
-    delay(0.4, function()
-        keyFrame.Visible = false
-        if callback then callback() end
-    end)
-end
-
-local function finishLoginAndShowHub()
-    animateKeyFrameOut(function()
-        -- Loading-Label
-        local loading = Instance.new("TextLabel")
-        loading.Text = "Loading..."
-        loading.Size = UDim2.new(0, 220, 0, 54)
-        loading.Position = UDim2.new(0.5, -110, 0.5, -27)
-        loading.BackgroundTransparency = 1
-        loading.TextColor3 = getBrightTextColor()
-        loading.Font = Enum.Font.GothamBlack
-        loading.TextSize = 32
-        loading.TextTransparency = 1
-        loading.Parent = screenGui
-        TweenService:Create(loading, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
-        wait(2)
-        TweenService:Create(loading, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-        wait(0.3)
-        loading:Destroy()
-        mainFrame.Visible = true
-        createCatalogButtons()
-        showCatalogContent(currentCatalog)
-        setJoHubVisible(true)
-        showWelcome()
-    end)
-end
-
-local function checkKeyAndLogin()
-    local username = player.Name
-    local isBypass = false
-    for _,bypassName in ipairs(BYPASS_USERS) do
-        if username == bypassName then isBypass = true break end
+local function enableJoHubBlur()
+    if not Lighting:FindFirstChild("JoHubBlur") then
+        local blur = Instance.new("BlurEffect")
+        blur.Name = "JoHubBlur"
+        blur.Size = 18
+        blur.Parent = Lighting
     end
-    if isBypass then
-        wait(0.5)
-        showNotify("Bypass für "..username, Color3.fromRGB(0,200,100), nil, 1.5)
-        wait(1)
-        finishLoginAndShowHub()
-        return
-    end
-    loginBtn.MouseButton1Click:Connect(function()
-        notify.Visible = false
-        local key = keyBox.Text
-        if key == "" then
-            showNotify("Bitte Key eingeben!", Color3.fromRGB(255,140,0))
-            return
-        end
-        showNotify("Prüfe Key...", Color3.fromRGB(0,120,255))
-        local success, result = pcall(function()
-            return game:HttpGet(KEY_URL)
-        end)
-        if success and result and string.find(result, key) then
-            showNotify("Key korrekt!", Color3.fromRGB(0,200,100))
-            wait(0.7)
-            finishLoginAndShowHub()
-        else
-            showNotify("Key falsch!", Color3.fromRGB(255,60,60))
-        end
-    end)
 end
 
-local function showKeyLoginAnimated()
-    keyFrame.Visible = true
-    keyFrame.BackgroundTransparency = 1
-    keyFrame.Size = UDim2.new(0, 100, 0, 200)
-    keyFrame.Position = UDim2.new(0.5, -50, 0.5, -100)
-    TweenService:Create(keyFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        BackgroundTransparency = 0.15,
-        Size = UDim2.new(0, 480, 0, 200),
-        Position = UDim2.new(0.5, -240, 0.5, -100)
-    }):Play()
+local function disableJoHubBlur()
+    if Lighting:FindFirstChild("JoHubBlur") then
+        Lighting.JoHubBlur:Destroy()
+    end
 end
 
 -- Hauptlogik (ALLE EVENTS UND INITIALISIERUNG UNTEN)
@@ -852,7 +484,27 @@ end)
 
 enableJoHubBlur()
 
-showKeyLoginAnimated()
-keyFrame.Visible = true
+-- KeySystem-Login
+KeySystem.checkKeyAndLogin({
+    player = player,
+    BYPASS_USERS = BYPASS_USERS,
+    KEY_URL = KEY_URL,
+    loginBtn = loginBtn,
+    keyBox = keyBox,
+    notify = notify,
+    showNotify = showNotify,
+    finishLoginAndShowHub = function()
+        KeySystem.finishLoginAndShowHub({
+            keyFrame = keyFrame,
+            screenGui = screenGui,
+            getBrightTextColor = getBrightTextColor,
+            mainFrame = mainFrame,
+            createCatalogButtons = createCatalogButtons,
+            showCatalogContent = function() showCatalogContent(currentCatalog[1]) end,
+            setJoHubVisible = setJoHubVisible,
+            showWelcome = showWelcome
+        })
+    end
+})
 
-checkKeyAndLogin()
+showCatalogContent(currentCatalog[1])
