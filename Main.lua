@@ -382,6 +382,8 @@ local function setCatalogButtonsVisible(visible, animate)
     end
 end
 
+local sessionStartTime = tick() -- Session-Start global merken
+
 function createCatalogButtons()
     for _,btn in ipairs(catalogButtons) do btn:Destroy() end
     catalogButtons = {}
@@ -558,12 +560,11 @@ function showCatalogContent(index)
         sessionLabel.Size = UDim2.new(1,-32,0,20)
         sessionLabel.ZIndex = welcomeField.ZIndex + 1
         sessionLabel.Parent = welcomeField
-        local startTime = tick()
         spawn(function()
             while mainPanel.Parent do
                 local now = os.date("%d.%m.%Y %H:%M:%S")
                 dateLabel.Text = now
-                local elapsed = math.floor(tick()-startTime)
+                local elapsed = math.floor(tick()-sessionStartTime)
                 local min = math.floor(elapsed/60)
                 local sec = elapsed%60
                 sessionLabel.Text = string.format("Session: %dm %ds", min, sec)
