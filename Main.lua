@@ -485,11 +485,8 @@ function showCatalogContent(index)
         -- Grid-Konfiguration
         local gridRows, gridCols = 2, 2
         local gridPadding = 16
-        local cellW = (mainPanel.AbsoluteSize.X - gridPadding * (gridCols+1)) / gridCols
-        local cellH = (mainPanel.AbsoluteSize.Y - gridPadding * (gridRows+1)) / gridRows
-        -- Da AbsoluteSize erst nach Parent-Set verfügbar ist, statisch setzen:
-        cellW = 280
-        cellH = 110
+        local cellW = 280
+        local cellH = 110
 
         -- Helper für Felder
         local function createField(x, y)
@@ -505,8 +502,53 @@ function showCatalogContent(index)
             return f
         end
 
-        -- 1. Feld: Profilbild
-        local avatarField = createField(1,1)
+        -- 1. Feld: Willkommen, USER! mit Herz und Schreibanimation
+        local welcomeField = createField(1,1)
+        local welcome = Instance.new("TextLabel")
+        welcome.Text = ""
+        welcome.Font = Enum.Font.GothamBold
+        welcome.TextSize = 22
+        welcome.TextColor3 = getBrightTextColor()
+        welcome.BackgroundTransparency = 1
+        welcome.Position = UDim2.new(0,16,0,30)
+        welcome.Size = UDim2.new(1,-32,0,32)
+        welcome.ZIndex = welcomeField.ZIndex + 1
+        welcome.TextXAlignment = Enum.TextXAlignment.Left
+        welcome.Parent = welcomeField
+        -- Herz daneben als Label
+        local heart = Instance.new("TextLabel")
+        heart.Text = "❤️"
+        heart.Font = Enum.Font.GothamBold
+        heart.TextSize = 22
+        heart.TextColor3 = Color3.fromRGB(255,0,80)
+        heart.BackgroundTransparency = 1
+        heart.Position = UDim2.new(0, 0, 0, 0)
+        heart.Size = UDim2.new(0, 32, 0, 32)
+        heart.ZIndex = welcome.ZIndex + 1
+        heart.Parent = welcomeField
+        -- Schreib-/Lösch-Animation
+        spawn(function()
+            local baseText = "Willkommen, "..player.Name.."! "
+            while mainPanel.Parent do
+                -- Schreiben
+                for i = 1, #baseText do
+                    welcome.Text = string.sub(baseText, 1, i)
+                    heart.Position = UDim2.new(0, welcome.TextBounds.X + 24, 0, 0)
+                    wait(0.045)
+                end
+                wait(1.2)
+                -- Löschen (Backspace-Effekt)
+                for i = #baseText, 0, -1 do
+                    welcome.Text = string.sub(baseText, 1, i)
+                    heart.Position = UDim2.new(0, welcome.TextBounds.X + 24, 0, 0)
+                    wait(0.025)
+                end
+                wait(2.5)
+            end
+        end)
+
+        -- 2. Feld: Profilbild
+        local avatarField = createField(2,1)
         local avatarImg = Instance.new("ImageLabel")
         avatarImg.Size = UDim2.new(0, 70, 0, 70)
         avatarImg.Position = UDim2.new(0, 20, 0, 20)
@@ -528,68 +570,10 @@ function showCatalogContent(index)
         nameLabel.ZIndex = avatarField.ZIndex + 1
         nameLabel.Parent = avatarField
 
-        -- 2. Feld: Willkommen/Datum/Session
-        local welcomeField = createField(2,1)
-        local welcome = Instance.new("TextLabel")
-        welcome.Text = "Willkommen, "..player.Name.."! "
-        welcome.Font = Enum.Font.GothamBold
-        welcome.TextSize = 20
-        welcome.TextColor3 = getBrightTextColor()
-        welcome.BackgroundTransparency = 1
-        welcome.Position = UDim2.new(0,16,0,18)
-        welcome.Size = UDim2.new(1,-32,0,32)
-        welcome.ZIndex = welcomeField.ZIndex + 1
-        welcome.TextXAlignment = Enum.TextXAlignment.Left
-        welcome.Parent = welcomeField
-        -- Herz daneben als Label
-        local heart = Instance.new("TextLabel")
-        heart.Text = "❤️"
-        heart.Font = Enum.Font.GothamBold
-        heart.TextSize = 22
-        heart.TextColor3 = Color3.fromRGB(255,0,80)
-        heart.BackgroundTransparency = 1
-        heart.Position = UDim2.new(0, welcome.TextBounds.X + 24, 0, 18)
-        heart.Size = UDim2.new(0, 32, 0, 32)
-        heart.ZIndex = welcome.ZIndex + 1
-        heart.Parent = welcomeField
-        -- Uhrzeit darunter
-        local dateLabel = Instance.new("TextLabel")
-        dateLabel.Text = ""
-        dateLabel.Font = Enum.Font.Gotham
-        dateLabel.TextSize = 16
-        dateLabel.TextColor3 = getBrightTextColor()
-        dateLabel.BackgroundTransparency = 1
-        dateLabel.Position = UDim2.new(0,16,0,52)
-        dateLabel.Size = UDim2.new(1,-32,0,20)
-        dateLabel.ZIndex = welcomeField.ZIndex + 1
-        dateLabel.Parent = welcomeField
-        -- Session-Dauer darunter
-        local sessionLabel = Instance.new("TextLabel")
-        sessionLabel.Text = "Session: 0s"
-        sessionLabel.Font = Enum.Font.Gotham
-        sessionLabel.TextSize = 16
-        sessionLabel.TextColor3 = getBrightTextColor()
-        sessionLabel.BackgroundTransparency = 1
-        sessionLabel.Position = UDim2.new(0,16,0,72)
-        sessionLabel.Size = UDim2.new(1,-32,0,20)
-        sessionLabel.ZIndex = welcomeField.ZIndex + 1
-        sessionLabel.Parent = welcomeField
-        spawn(function()
-            while mainPanel.Parent do
-                local now = os.date("%d.%m.%Y %H:%M:%S")
-                dateLabel.Text = now
-                local elapsed = math.floor(tick()-sessionStartTime)
-                local min = math.floor(elapsed/60)
-                local sec = elapsed%60
-                sessionLabel.Text = string.format("Session: %dm %ds", min, sec)
-                wait(1)
-            end
-        end)
-
-        -- 3. Feld: Statistiken
+        -- 3. Feld: Statistiken (ohne Session-Start)
         local statsField = createField(1,2)
         local statsLabel = Instance.new("TextLabel")
-        statsLabel.Text = string.format("Scripts: %d\nUhrzeit: %s\nSession: %dm %ds", #Scripts.list, os.date("%H:%M:%S"), math.floor((tick()-sessionStartTime)/60), math.floor((tick()-sessionStartTime)%60))
+        statsLabel.Text = string.format("Scripts: %d\nUhrzeit: %s", #Scripts.list, os.date("%H:%M:%S"))
         statsLabel.Font = Enum.Font.Gotham
         statsLabel.TextSize = 16
         statsLabel.TextColor3 = getBrightTextColor()
@@ -601,7 +585,7 @@ function showCatalogContent(index)
         statsLabel.Parent = statsField
         spawn(function()
             while statsLabel.Parent do
-                statsLabel.Text = string.format("Scripts: %d\nUhrzeit: %s\nSession: %dm %ds", #Scripts.list, os.date("%H:%M:%S"), math.floor((tick()-sessionStartTime)/60), math.floor((tick()-sessionStartTime)%60))
+                statsLabel.Text = string.format("Scripts: %d\nUhrzeit: %s", #Scripts.list, os.date("%H:%M:%S"))
                 wait(1)
             end
         end)
@@ -627,7 +611,7 @@ function showCatalogContent(index)
         feedbackBtn.TextColor3 = getBrightTextColor()
         feedbackBtn.BackgroundTransparency = 0.08
         feedbackBtn.Size = UDim2.new(0.8,0,0,32)
-        feedbackBtn.Position = UDim2.new(0.1,0,1,-44) -- Mehr Abstand nach unten
+        feedbackBtn.Position = UDim2.new(0.1,0,1,-44)
         feedbackBtn.ZIndex = creditsField.ZIndex + 1
         feedbackBtn.Parent = creditsField
         local feedbackBtnCorner = Instance.new("UICorner", feedbackBtn)
