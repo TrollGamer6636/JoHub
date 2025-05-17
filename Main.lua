@@ -479,6 +479,7 @@ function showCatalogContent(index)
         mainPanel.Size = UDim2.new(1,-20,1,-20)
         mainPanel.Position = UDim2.new(0,10,0,10)
         mainPanel.BackgroundTransparency = 1
+        mainPanel.ZIndex = mainFrame.ZIndex + 1 -- Panel über mainFrame
         mainPanel.Parent = catalogContainer
         catalogContent = mainPanel
 
@@ -488,6 +489,7 @@ function showCatalogContent(index)
         avatarField.Position = UDim2.new(0, 0, 0, 0)
         avatarField.BackgroundColor3 = currentTheme.BgAccent
         avatarField.BackgroundTransparency = 0.04 -- weniger durchsichtig
+        avatarField.ZIndex = mainPanel.ZIndex + 1
         avatarField.Parent = mainPanel
         local avatarFieldCorner = Instance.new("UICorner", avatarField)
         avatarFieldCorner.CornerRadius = UDim.new(0, 22)
@@ -496,6 +498,7 @@ function showCatalogContent(index)
         avatarImg.Position = UDim2.new(0, 20, 0, 20)
         avatarImg.BackgroundTransparency = 1
         avatarImg.Image = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=420&height=420&format=png", player.UserId)
+        avatarImg.ZIndex = avatarField.ZIndex + 1
         avatarImg.Parent = avatarField
         local avatarCorner = Instance.new("UICorner", avatarImg)
         avatarCorner.CornerRadius = UDim.new(1,0)
@@ -507,6 +510,7 @@ function showCatalogContent(index)
         topRightField.Position = UDim2.new(1, -320, 0, 0)
         topRightField.BackgroundColor3 = currentTheme.BgAccent
         topRightField.BackgroundTransparency = 0.04
+        topRightField.ZIndex = mainPanel.ZIndex + 1
         topRightField.Parent = mainPanel
         local topRightCorner = Instance.new("UICorner", topRightField)
         topRightCorner.CornerRadius = UDim.new(0, 22)
@@ -518,6 +522,7 @@ function showCatalogContent(index)
         welcome.BackgroundTransparency = 1
         welcome.Position = UDim2.new(0,16,0,10)
         welcome.Size = UDim2.new(1,-32,0,32)
+        welcome.ZIndex = topRightField.ZIndex + 1
         welcome.Parent = topRightField
         local dateLabel = Instance.new("TextLabel")
         dateLabel.Text = ""
@@ -527,6 +532,7 @@ function showCatalogContent(index)
         dateLabel.BackgroundTransparency = 1
         dateLabel.Position = UDim2.new(0,16,0,44)
         dateLabel.Size = UDim2.new(1,-32,0,24)
+        dateLabel.ZIndex = topRightField.ZIndex + 1
         dateLabel.Parent = topRightField
         local sessionLabel = Instance.new("TextLabel")
         sessionLabel.Text = "Session: 0s"
@@ -536,6 +542,7 @@ function showCatalogContent(index)
         sessionLabel.BackgroundTransparency = 1
         sessionLabel.Position = UDim2.new(0,16,0,72)
         sessionLabel.Size = UDim2.new(1,-32,0,24)
+        sessionLabel.ZIndex = topRightField.ZIndex + 1
         sessionLabel.Parent = topRightField
         local startTime = tick()
         spawn(function()
@@ -556,6 +563,7 @@ function showCatalogContent(index)
         statsField.Position = UDim2.new(0, 0, 1, -80)
         statsField.BackgroundColor3 = currentTheme.BgAccent
         statsField.BackgroundTransparency = 0.04
+        statsField.ZIndex = mainPanel.ZIndex + 1
         statsField.Parent = mainPanel
         local statsCorner = Instance.new("UICorner", statsField)
         statsCorner.CornerRadius = UDim.new(0, 18)
@@ -568,6 +576,7 @@ function showCatalogContent(index)
         statsLabel.Size = UDim2.new(1,0,1,0)
         statsLabel.TextWrapped = true
         statsLabel.TextYAlignment = Enum.TextYAlignment.Top
+        statsLabel.ZIndex = statsField.ZIndex + 1
         statsLabel.Parent = statsField
 
         -- Unten rechts: Credits + Feedback mit Feld
@@ -576,6 +585,7 @@ function showCatalogContent(index)
         creditsField.Position = UDim2.new(1, -220, 1, -80)
         creditsField.BackgroundColor3 = currentTheme.BgAccent
         creditsField.BackgroundTransparency = 0.04
+        creditsField.ZIndex = mainPanel.ZIndex + 1
         creditsField.Parent = mainPanel
         local creditsCorner = Instance.new("UICorner", creditsField)
         creditsCorner.CornerRadius = UDim.new(0, 18)
@@ -587,6 +597,7 @@ function showCatalogContent(index)
         creditsLabel.BackgroundTransparency = 1
         creditsLabel.Size = UDim2.new(1,0,0,40)
         creditsLabel.TextYAlignment = Enum.TextYAlignment.Top
+        creditsLabel.ZIndex = creditsField.ZIndex + 1
         creditsLabel.Parent = creditsField
         local feedbackBtn = Instance.new("TextButton")
         feedbackBtn.Text = "Feedback senden"
@@ -597,6 +608,7 @@ function showCatalogContent(index)
         feedbackBtn.BackgroundTransparency = 0.08
         feedbackBtn.Size = UDim2.new(1,0,0,32)
         feedbackBtn.Position = UDim2.new(0,0,1,-32)
+        feedbackBtn.ZIndex = creditsField.ZIndex + 1
         feedbackBtn.Parent = creditsField
         local feedbackBtnCorner = Instance.new("UICorner", feedbackBtn)
         feedbackBtnCorner.CornerRadius = UDim.new(0, 8)
@@ -609,7 +621,7 @@ function showCatalogContent(index)
             modal.Position = UDim2.new(0.5, -210, 0.5, -130)
             modal.BackgroundColor3 = currentTheme.BgAccent
             modal.BackgroundTransparency = 0.04
-            modal.ZIndex = 1000
+            modal.ZIndex = 2000 -- Immer ganz oben
             modal.Parent = screenGui
             local modalCorner = Instance.new("UICorner", modal)
             modalCorner.CornerRadius = UDim.new(0, 18)
@@ -622,6 +634,7 @@ function showCatalogContent(index)
             userLabel.BackgroundTransparency = 1
             userLabel.Position = UDim2.new(0,20,0,20)
             userLabel.Size = UDim2.new(1,-40,0,32)
+            userLabel.ZIndex = modal.ZIndex + 1
             userLabel.Parent = modal
             -- Feedback Box
             local fbBox = Instance.new("TextBox")
@@ -640,6 +653,7 @@ function showCatalogContent(index)
             fbBox.ClipsDescendants = true
             fbBox.TextEditable = true
             fbBox.TextTruncate = Enum.TextTruncate.AtEnd
+            fbBox.ZIndex = modal.ZIndex + 1
             fbBox.Parent = modal
             local fbBoxCorner = Instance.new("UICorner", fbBox)
             fbBoxCorner.CornerRadius = UDim.new(0, 10)
@@ -659,6 +673,7 @@ function showCatalogContent(index)
             sendBtn.BackgroundTransparency = 0.08
             sendBtn.Size = UDim2.new(0.5, -16, 0, 36)
             sendBtn.Position = UDim2.new(0, 20, 1, -56)
+            sendBtn.ZIndex = modal.ZIndex + 1
             sendBtn.Parent = modal
             local sendBtnCorner = Instance.new("UICorner", sendBtn)
             sendBtnCorner.CornerRadius = UDim.new(0, 8)
@@ -674,6 +689,7 @@ function showCatalogContent(index)
             cancelBtn.BackgroundTransparency = 0.08
             cancelBtn.Size = UDim2.new(0.5, -16, 0, 36)
             cancelBtn.Position = UDim2.new(0.5, 12, 1, -56)
+            cancelBtn.ZIndex = modal.ZIndex + 1
             cancelBtn.Parent = modal
             local cancelBtnCorner = Instance.new("UICorner", cancelBtn)
             cancelBtnCorner.CornerRadius = UDim.new(0, 8)
@@ -718,6 +734,7 @@ function showCatalogContent(index)
                 thx.BackgroundTransparency = 1
                 thx.Size = UDim2.new(1,0,0,60)
                 thx.Position = UDim2.new(0,0,0.5,-30)
+                thx.ZIndex = modal.ZIndex + 2
                 thx.Parent = modal
                 thx.TextTransparency = 1
                 TweenService:Create(thx, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
