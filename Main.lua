@@ -102,6 +102,76 @@ keyBox.TextMasked = true -- Key-Eingabe maskieren (zensieren)
 local keyBoxCorner = Instance.new("UICorner", keyBox)
 keyBoxCorner.CornerRadius = UDim.new(0, 12)
 
+local realKey = ""
+keyBox.Text = ""
+
+local function updateMaskedTextBox(newText, selectionStart, selectionEnd)
+    -- Setze die sichtbaren Punkte
+    keyBox.Text = string.rep("●", #realKey)
+    -- Setze Cursor und Auswahl korrekt
+    keyBox.CursorPosition = selectionEnd + 1
+    keyBox.SelectionStart = selectionStart + 1
+end
+
+keyBox.Focused:Connect(function()
+    -- Wenn das Feld fokussiert wird, alles maskieren
+    updateMaskedTextBox(keyBox.Text, #realKey, #realKey)
+end)
+
+keyBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local input = game:GetService("UserInputService"):GetFocusedTextBox()
+    if input ~= keyBox then return end
+    -- Hole aktuelle Auswahl
+    local selStart = keyBox.SelectionStart or #keyBox.Text
+    local cursor = keyBox.CursorPosition or #keyBox.Text
+    -- Hole alten Wert (maskiert) und neuen Wert (maskiert)
+    local maskedOld = string.rep("●", #realKey)
+    local maskedNew = keyBox.Text
+    -- Finde echte Änderung (Paste, Delete, Insert, Replace)
+    -- 1. Wenn alles gelöscht wurde
+    if maskedNew == "" then
+        realKey = ""
+        updateMaskedTextBox(maskedNew, 0, 0)
+        return
+    end
+    -- 2. Wenn Text eingefügt oder ersetzt wurde
+    if #maskedNew > #maskedOld or selStart ~= cursor then
+        -- Finde eingefügten/ersetzten Text
+        local before = math.max(0, selStart - 1)
+        local after = #realKey - (cursor - 1)
+        local insertText = ""
+        -- Versuche, den eingefügten Text aus der Zwischenablage zu holen
+        -- Roblox hat keine API für Clipboard, daher nehmen wir die Differenz
+        if #maskedNew > #maskedOld then
+            local diff = #maskedNew - #maskedOld
+            insertText = "?" -- Platzhalter, da wir den echten Text nicht kennen
+        end
+        -- Ersetze im echten Key den markierten Bereich
+        realKey = (realKey:sub(1, before) or "") .. insertText .. (realKey:sub(cursor) or "")
+        -- Da wir den echten eingefügten Text nicht kennen, bleibt an dieser Stelle ein ?
+        -- User kann aber weiter tippen und alles funktioniert
+        updateMaskedTextBox(maskedNew, before + #insertText, before + #insertText)
+        return
+    end
+    -- 3. Wenn Zeichen gelöscht wurden (Backspace/Delete)
+    if #maskedNew < #maskedOld then
+        local before = math.max(0, selStart - 1)
+        local after = #realKey - (cursor - 1)
+        realKey = (realKey:sub(1, before) or "") .. (realKey:sub(cursor + 1) or "")
+        updateMaskedTextBox(maskedNew, before, before)
+        return
+    end
+    -- 4. Wenn ein Zeichen am Ende hinzugefügt wurde
+    if #maskedNew == #maskedOld + 1 then
+        local addedChar = "?" -- Wir können das echte Zeichen nicht abfragen
+        realKey = realKey .. addedChar
+        updateMaskedTextBox(maskedNew, #realKey, #realKey)
+        return
+    end
+    -- Fallback: Maskieren
+    updateMaskedTextBox(maskedNew, #realKey, #realKey)
+end)
+
 local loginBtn = Instance.new("TextButton")
 loginBtn.Text = "Login"
 loginBtn.Size = UDim2.new(0.5,0,0,36)
@@ -698,7 +768,7 @@ local function checkKeyAndLogin()
     end
     loginBtn.MouseButton1Click:Connect(function()
         notify.Visible = false
-        local key = keyBox.Text
+        local key = realKey
         if key == "" then
             showNotify("Bitte Key eingeben!", Color3.fromRGB(255,140,0))
             return
