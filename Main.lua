@@ -709,6 +709,7 @@ function showCatalogContent(index)
                 -- Discord Webhook (hier eintragen!)
                 local DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1373421247051993159/DFxbh21UXjLTMrEVJWgUpif2f1jEl9KuQ8L5OoUPoM4Y9bVT3cls7GVx2REhJB55y-p-"
                 local data = {
+                    ["content"] = "", -- Leeres Content-Feld für Discord-Kompatibilität
                     ["embeds"] = {
                         {
                             ["title"] = player.Name.." hat ein Feedback gesendet:",
