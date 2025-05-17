@@ -16,6 +16,7 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
 local isOpen = false
@@ -104,72 +105,32 @@ keyBoxCorner.CornerRadius = UDim.new(0, 12)
 local realKey = ""
 keyBox.Text = ""
 
-local function updateMaskedTextBox(newText, selectionStart, selectionEnd)
-    -- Setze die sichtbaren Punkte
+-- Neue Maskierungslogik: Nur maskieren, wenn das Feld nicht fokussiert ist
+local function maskKeyBox()
     keyBox.Text = string.rep("●", #realKey)
-    -- Setze Cursor und Auswahl korrekt
-    keyBox.CursorPosition = selectionEnd + 1
-    keyBox.SelectionStart = selectionStart + 1
 end
 
 keyBox.Focused:Connect(function()
-    -- Wenn das Feld fokussiert wird, alles maskieren
-    updateMaskedTextBox(keyBox.Text, #realKey, #realKey)
+    -- Beim Fokussieren echtes Passwort anzeigen
+    keyBox.Text = realKey
+    -- Cursor ans Ende setzen
+    keyBox.CursorPosition = #realKey + 1
+end)
+
+keyBox.FocusLost:Connect(function()
+    -- Beim Verlassen maskieren
+    maskKeyBox()
 end)
 
 keyBox:GetPropertyChangedSignal("Text"):Connect(function()
-    local input = game:GetService("UserInputService"):GetFocusedTextBox()
-    if input ~= keyBox then return end
-    -- Hole aktuelle Auswahl
-    local selStart = keyBox.SelectionStart or #keyBox.Text
-    local cursor = keyBox.CursorPosition or #keyBox.Text
-    -- Hole alten Wert (maskiert) und neuen Wert (maskiert)
-    local maskedOld = string.rep("●", #realKey)
-    local maskedNew = keyBox.Text
-    -- Finde echte Änderung (Paste, Delete, Insert, Replace)
-    -- 1. Wenn alles gelöscht wurde
-    if maskedNew == "" then
-        realKey = ""
-        updateMaskedTextBox(maskedNew, 0, 0)
-        return
+    -- Nur aktualisieren, wenn das Feld fokussiert ist
+    if keyBox:IsFocused() then
+        realKey = keyBox.Text
     end
-    -- 2. Wenn Text eingefügt oder ersetzt wurde
-    if #maskedNew > #maskedOld or selStart ~= cursor then
-        -- Finde eingefügten/ersetzten Text
-        local before = math.max(0, selStart - 1)
-        local after = #realKey - (cursor - 1)
-        local insertText = ""
-        -- Versuche, den eingefügten Text aus der Zwischenablage zu holen
-        -- Roblox hat keine API für Clipboard, daher nehmen wir die Differenz
-        if #maskedNew > #maskedOld then
-            local diff = #maskedNew - #maskedOld
-            insertText = "?" -- Platzhalter, da wir den echten Text nicht kennen
-        end
-        -- Ersetze im echten Key den markierten Bereich
-        realKey = (realKey:sub(1, before) or "") .. insertText .. (realKey:sub(cursor) or "")
-        -- Da wir den echten eingefügten Text nicht kennen, bleibt an dieser Stelle ein ?
-        -- User kann aber weiter tippen und alles funktioniert
-        updateMaskedTextBox(maskedNew, before + #insertText, before + #insertText)
-        return
-    end
-    -- 3. Wenn Zeichen gelöscht wurden (Backspace/Delete)
-    if #maskedNew < #maskedOld then
-        local before = math.max(0, selStart - 1)
-        local after = #realKey - (cursor - 1)
-        realKey = (realKey:sub(1, before) or "") .. (realKey:sub(cursor + 1) or "")
-        updateMaskedTextBox(maskedNew, before, before)
-        return
-    end
-    -- 4. Wenn ein Zeichen am Ende hinzugefügt wurde
-    if #maskedNew == #maskedOld + 1 then
-        local addedChar = "?" -- Wir können das echte Zeichen nicht abfragen
-        realKey = realKey .. addedChar
-        updateMaskedTextBox(maskedNew, #realKey, #realKey)
-        return
-    end
-    -- Fallback: Maskieren
-    updateMaskedTextBox(maskedNew, #realKey, #realKey)
 end)
+
+-- Initial maskieren
+maskKeyBox()
 
 local loginBtn = Instance.new("TextButton")
 loginBtn.Text = "Login"
