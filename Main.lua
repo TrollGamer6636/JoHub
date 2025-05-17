@@ -206,6 +206,44 @@ welcomeLabel.Visible = false
 welcomeLabel.Parent = catalogContainer
 
 ----------------------------------------------------------------------
+-- Musik-Logik
+----------------------------------------------------------------------
+
+-- Musik-Objekte
+local keyMusic = Instance.new("Sound")
+keyMusic.Name = "JoHubKeyMusic"
+keyMusic.SoundId = "rbxassetid://1843529636" -- Chillige Instrumental-Musik (z.B. LoFi)
+keyMusic.Volume = 0.18
+keyMusic.Looped = true
+keyMusic.Parent = screenGui
+
+local transitionMusic = Instance.new("Sound")
+transitionMusic.Name = "JoHubTransitionMusic"
+transitionMusic.SoundId = "rbxassetid://1843524017" -- Kurze Übergangsmusik (z.B. UI Jingle)
+transitionMusic.Volume = 0.45
+transitionMusic.Looped = false
+transitionMusic.Parent = screenGui
+
+local function playKeyMusic()
+    if not keyMusic.IsPlaying then
+        keyMusic:Play()
+    end
+end
+local function stopKeyMusic()
+    if keyMusic.IsPlaying then
+        keyMusic:Stop()
+    end
+end
+local function playTransitionMusic()
+    transitionMusic:Play()
+end
+local function stopTransitionMusic()
+    if transitionMusic.IsPlaying then
+        transitionMusic:Stop()
+    end
+end
+
+----------------------------------------------------------------------
 -- Button-Logik (Katalog, Scripts, Theme, etc.)
 ----------------------------------------------------------------------
 
@@ -271,6 +309,22 @@ local function applyTheme(theme)
 end
 
 applyTheme(currentTheme)
+
+-- Klick-Sound Setup
+local clickSound = Instance.new("Sound")
+clickSound.Name = "JoHubClickSound"
+clickSound.SoundId = "rbxassetid://9118828560" -- Roblox UI Click Sound (oder beliebig ersetzen)
+clickSound.Volume = 0.5
+clickSound.Parent = screenGui
+
+local function playClick()
+    if clickSound.IsLoaded then
+        clickSound:Play()
+    else
+        clickSound.Loaded:Wait()
+        clickSound:Play()
+    end
+end
 
 -- Funktionsdefinitionen (ALLE FUNKTIONEN OBEN)
 
@@ -339,6 +393,7 @@ function createCatalogButtons()
         btn.MouseButton1Up:Connect(function()
             TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = getHoverColor(currentTheme.Color)}):Play()
         end)
+        btn.MouseButton1Click:Connect(playClick)
         btn.MouseButton1Click:Connect(function()
             if currentCatalog ~= i then
                 currentCatalog = i
@@ -448,6 +503,7 @@ function showCatalogContent(index)
             btn.MouseButton1Up:Connect(function()
                 TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = getHoverColor(currentTheme.Color)}):Play()
             end)
+            btn.MouseButton1Click:Connect(playClick)
             btn.MouseButton1Click:Connect(function()
                 local success, err = pcall(function()
                     loadstring(script.Code)()
@@ -491,6 +547,7 @@ function showCatalogContent(index)
             local tbtnCorner = Instance.new("UICorner", tbtn)
             tbtnCorner.CornerRadius = UDim.new(0, 8)
             TweenService:Create(tbtn, TweenInfo.new(0.4), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
+            tbtn.MouseButton1Click:Connect(playClick)
             tbtn.MouseButton1Click:Connect(function()
                 currentTheme = th
                 createCatalogButtons()
@@ -512,6 +569,7 @@ function showCatalogContent(index)
         local removeBtnCorner = Instance.new("UICorner", removeBtn)
         removeBtnCorner.CornerRadius = UDim.new(0, 8)
         TweenService:Create(removeBtn, TweenInfo.new(0.4), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
+        removeBtn.MouseButton1Click:Connect(playClick)
         removeBtn.MouseButton1Click:Connect(function()
             screenGui:Destroy()
             disableJoHubBlur()
@@ -741,8 +799,11 @@ local function animateKeyFrameOut(callback)
     end)
 end
 
+-- Stoppe Musik und spiele Übergangsmusik nach Key-Login
 local function finishLoginAndShowHub()
+    stopKeyMusic()
     animateKeyFrameOut(function()
+        playTransitionMusic()
         -- Loading-Label
         local loading = Instance.new("TextLabel")
         loading.Text = "Loading..."
@@ -761,6 +822,7 @@ local function finishLoginAndShowHub()
         loading:Destroy()
         -- Zeige neuen Welcome-Screen mit Animation
         showWelcomeAnimated(function()
+            stopTransitionMusic()
             mainFrame.Visible = true
             createCatalogButtons()
             showCatalogContent(currentCatalog)
@@ -792,6 +854,39 @@ local function checkKeyAndLogin()
         finishLoginAndShowHub()
         return
     end
+    local keyChecked = false
+    local keyExists = false
+    local keyList = {}
+    -- Prüfe, ob Key-Liste überhaupt existiert
+    local success, result = pcall(function()
+        return game:HttpGet(KEY_URL)
+    end)
+    if success and result and #result > 0 then
+        for line in string.gmatch(result, "[^\r\n]+") do
+            table.insert(keyList, line)
+        end
+        keyExists = #keyList > 0
+    else
+        keyExists = false
+    end
+    if not keyExists then
+        loginBtn.AutoButtonColor = false
+        loginBtn.BackgroundColor3 = Color3.fromRGB(120,120,120)
+        loginBtn.Text = "Login"
+        loginBtn.Active = false
+        loginBtn.Selectable = false
+        keyBox.TextEditable = false
+        keyBox.Text = ""
+        showNotify("Key zurzeit nicht existierend. Bitte später wieder ausführen.", Color3.fromRGB(255,140,0), nil, 3)
+        return
+    else
+        loginBtn.AutoButtonColor = true
+        loginBtn.BackgroundColor3 = Color3.fromRGB(255,0,200)
+        loginBtn.Active = true
+        loginBtn.Selectable = true
+        keyBox.TextEditable = true
+    end
+    loginBtn.MouseButton1Click:Connect(playClick)
     loginBtn.MouseButton1Click:Connect(function()
         notify.Visible = false
         local key = keyBox.Text
@@ -800,10 +895,10 @@ local function checkKeyAndLogin()
             return
         end
         showNotify("Prüfe Key...", Color3.fromRGB(0,120,255))
-        local success, result = pcall(function()
+        local success2, result2 = pcall(function()
             return game:HttpGet(KEY_URL)
         end)
-        if success and result and isKeyValid(result, key) then
+        if success2 and result2 and isKeyValid(result2, key) then
             showNotify("Key korrekt!", Color3.fromRGB(0,200,100))
             wait(0.7)
             finishLoginAndShowHub()
@@ -813,7 +908,8 @@ local function checkKeyAndLogin()
     end)
 end
 
-local function showKeyLoginAnimated()
+-- Starte Musik beim Anzeigen des Key-Login
+function showKeyLoginAnimated()
     keyFrame.Visible = true
     keyFrame.BackgroundTransparency = 1
     keyFrame.Size = UDim2.new(0, 100, 0, 200)
@@ -823,6 +919,7 @@ local function showKeyLoginAnimated()
         Size = UDim2.new(0, 480, 0, 200),
         Position = UDim2.new(0.5, -240, 0.5, -100)
     }):Play()
+    playKeyMusic()
 end
 
 -- Hauptlogik (ALLE EVENTS UND INITIALISIERUNG UNTEN)
@@ -870,6 +967,7 @@ end
 createTextLightning(mainTitle)
 
 -- Open/Close-Button öffnet GUI, wenn es geschlossen ist
+openCloseBtn.MouseButton1Click:Connect(playClick)
 openCloseBtn.MouseButton1Click:Connect(function()
     if not isOpen then
         setJoHubVisible(true)
@@ -877,6 +975,7 @@ openCloseBtn.MouseButton1Click:Connect(function()
 end)
 
 -- Close-Button Event (nach applyTheme, aber nach Deklaration)
+closeBtn.MouseButton1Click:Connect(playClick)
 closeBtn.MouseButton1Click:Connect(function()
     setJoHubVisible(false)
 end)
