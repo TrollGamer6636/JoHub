@@ -775,7 +775,7 @@ function showCatalogContent(index)
         scrollFrame.ScrollBarThickness = 8
         scrollFrame.BackgroundTransparency = 1
         scrollFrame.BorderSizePixel = 0
-        scrollFrame.ZIndex = mainFrame.ZIndex + 1 -- ZIndex +1 für Script-Katalog
+        scrollFrame.ZIndex = 4 -- Fester ZIndex für Sichtbarkeit
         scrollFrame.Parent = catalogContainer
         scrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
         scrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
@@ -785,7 +785,7 @@ function showCatalogContent(index)
         listLayout.Parent = scrollFrame
         listLayout.SortOrder = Enum.SortOrder.LayoutOrder
         listLayout.Padding = UDim.new(0, 10)
-        listLayout.ZIndex = scrollFrame.ZIndex + 1
+        -- Kein ZIndex für UIListLayout setzen!
 
         local padding = Instance.new("UIPadding")
         padding.Parent = scrollFrame
@@ -804,7 +804,7 @@ function showCatalogContent(index)
             btn.TextSize = 18
             btn.BackgroundTransparency = 1
             btn.TextTransparency = 1
-            btn.ZIndex = scrollFrame.ZIndex + 1 -- ZIndex +1 für Script-Button
+            btn.ZIndex = 4 -- Gleicher ZIndex wie scrollFrame
             btn.Parent = scrollFrame
             local btnCorner = Instance.new("UICorner", btn)
             btnCorner.CornerRadius = UDim.new(0, 10)
