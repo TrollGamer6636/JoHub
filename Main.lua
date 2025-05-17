@@ -492,65 +492,40 @@ local function isBypassUser(username)
     return false
 end
 
-if isBypassUser(player.Name) then
-    -- Bypass: skip keyFrame, go straight to hub
-    KeySystem.checkKeyAndLogin({
-        player = player,
-        BYPASS_USERS = BYPASS_USERS,
-        KEY_URL = KEY_URL,
-        loginBtn = loginBtn,
-        keyBox = keyBox,
-        notify = notify,
-        showNotify = showNotify,
-        finishLoginAndShowHub = function()
-            KeySystem.finishLoginAndShowHub({
-                keyFrame = keyFrame,
-                screenGui = screenGui,
-                getBrightTextColor = getBrightTextColor,
-                mainFrame = mainFrame,
-                createCatalogButtons = createCatalogButtons,
-                showCatalogContent = function() showCatalogContent(currentCatalog[1]) end,
-                setJoHubVisible = setJoHubVisible,
-                showWelcome = showWelcome
-            })
-        end
-    })
+-- Key login frame soll IMMER angezeigt werden, auch für Bypass-User
+keyFrame.Visible = true
+keyFrame.BackgroundTransparency = 1
+keyFrame.Size = UDim2.new(0, 480, 0, 200)
+keyFrame.Position = UDim2.new(0.5, -240, 0.5, -100)
+if TweenService and TweenService.Create then
+    TweenService:Create(keyFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 0.15
+    }):Play()
 else
-    -- Not bypass: show keyFrame and animate in
-    keyFrame.Visible = true
-    if TweenService and TweenService.Create then
-        TweenService:Create(keyFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            BackgroundTransparency = 0.15,
-            Size = UDim2.new(0, 480, 0, 200),
-            Position = UDim2.new(0.5, -240, 0.5, -100)
-        }):Play()
-    else
-        keyFrame.BackgroundTransparency = 0.15
-        keyFrame.Size = UDim2.new(0, 480, 0, 200)
-        keyFrame.Position = UDim2.new(0.5, -240, 0.5, -100)
-    end
-    KeySystem.checkKeyAndLogin({
-        player = player,
-        BYPASS_USERS = BYPASS_USERS,
-        KEY_URL = KEY_URL,
-        loginBtn = loginBtn,
-        keyBox = keyBox,
-        notify = notify,
-        showNotify = showNotify,
-        finishLoginAndShowHub = function()
-            KeySystem.finishLoginAndShowHub({
-                keyFrame = keyFrame,
-                screenGui = screenGui,
-                getBrightTextColor = getBrightTextColor,
-                mainFrame = mainFrame,
-                createCatalogButtons = createCatalogButtons,
-                showCatalogContent = function() showCatalogContent(currentCatalog[1]) end,
-                setJoHubVisible = setJoHubVisible,
-                showWelcome = showWelcome
-            })
-        end
-    })
+    keyFrame.BackgroundTransparency = 0.15
 end
+
+KeySystem.checkKeyAndLogin({
+    player = player,
+    BYPASS_USERS = BYPASS_USERS,
+    KEY_URL = KEY_URL,
+    loginBtn = loginBtn,
+    keyBox = keyBox,
+    notify = notify,
+    showNotify = showNotify,
+    finishLoginAndShowHub = function()
+        KeySystem.finishLoginAndShowHub({
+            keyFrame = keyFrame,
+            screenGui = screenGui,
+            getBrightTextColor = getBrightTextColor,
+            mainFrame = mainFrame,
+            createCatalogButtons = createCatalogButtons,
+            showCatalogContent = function() showCatalogContent(currentCatalog[1]) end,
+            setJoHubVisible = setJoHubVisible,
+            showWelcome = showWelcome
+        })
+    end
+})
 
 showCatalogContent(currentCatalog[1])
 
