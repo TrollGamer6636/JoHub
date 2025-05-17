@@ -464,7 +464,18 @@ local Scripts = loadstring(game:HttpGet("https://raw.githubusercontent.com/Troll
 function showCatalogContent(index)
     clearCatalogContent()
     if index == 1 then
-        -- Neues Main-Katalog-Layout
+        -- Neues Main-Katalog-Layout mit eigenen Feldern und dunklerem Hintergrund
+        local function darker(color, percent)
+            -- Prozent negativ für dunkler
+            local f = 1 + percent
+            return Color3.new(
+                math.clamp(color.R * f, 0, 1),
+                math.clamp(color.G * f, 0, 1),
+                math.clamp(color.B * f, 0, 1)
+            )
+        end
+        local fieldBg = darker(currentTheme.BgAccent or Color3.fromRGB(60,0,80), -0.03)
+
         local mainPanel = Instance.new("Frame")
         mainPanel.Size = UDim2.new(1,-20,1,-20)
         mainPanel.Position = UDim2.new(0,10,0,10)
@@ -472,59 +483,61 @@ function showCatalogContent(index)
         mainPanel.Parent = catalogContainer
         catalogContent = mainPanel
 
-        -- Oben links: Profilbild
-        local avatarFrame = Instance.new("Frame")
-        avatarFrame.Size = UDim2.new(0, 80, 0, 80)
-        avatarFrame.Position = UDim2.new(0, 0, 0, 0)
-        avatarFrame.BackgroundTransparency = 1
-        avatarFrame.Parent = mainPanel
+        -- Oben links: Profilbild mit Feld
+        local avatarField = Instance.new("Frame")
+        avatarField.Size = UDim2.new(0, 120, 0, 120)
+        avatarField.Position = UDim2.new(0, 0, 0, 0)
+        avatarField.BackgroundColor3 = fieldBg
+        avatarField.BackgroundTransparency = 0.08
+        avatarField.Parent = mainPanel
+        local avatarFieldCorner = Instance.new("UICorner", avatarField)
+        avatarFieldCorner.CornerRadius = UDim.new(0, 22)
         local avatarImg = Instance.new("ImageLabel")
-        avatarImg.Size = UDim2.new(1,0,1,0)
+        avatarImg.Size = UDim2.new(0, 80, 0, 80)
+        avatarImg.Position = UDim2.new(0, 20, 0, 20)
         avatarImg.BackgroundTransparency = 1
         avatarImg.Image = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=420&height=420&format=png", player.UserId)
-        avatarImg.Parent = avatarFrame
+        avatarImg.Parent = avatarField
         local avatarCorner = Instance.new("UICorner", avatarImg)
         avatarCorner.CornerRadius = UDim.new(1,0)
         avatarImg.ImageTransparency = 0.15
 
-        -- Oben rechts: Willkommen, Datum/Uhrzeit, Session
-        local topRight = Instance.new("Frame")
-        topRight.Size = UDim2.new(0.5, -20, 0, 80)
-        topRight.Position = UDim2.new(1, -320, 0, 0)
-        topRight.AnchorPoint = Vector2.new(0,0)
-        topRight.BackgroundTransparency = 1
-        topRight.Parent = mainPanel
-        -- Willkommen
+        -- Oben rechts: Willkommen, Datum/Uhrzeit, Session mit Feld
+        local topRightField = Instance.new("Frame")
+        topRightField.Size = UDim2.new(0, 320, 0, 120)
+        topRightField.Position = UDim2.new(1, -320, 0, 0)
+        topRightField.BackgroundColor3 = fieldBg
+        topRightField.BackgroundTransparency = 0.08
+        topRightField.Parent = mainPanel
+        local topRightCorner = Instance.new("UICorner", topRightField)
+        topRightCorner.CornerRadius = UDim.new(0, 22)
         local welcome = Instance.new("TextLabel")
         welcome.Text = "Willkommen, "..player.Name
         welcome.Font = Enum.Font.GothamBold
         welcome.TextSize = 24
         welcome.TextColor3 = getBrightTextColor()
         welcome.BackgroundTransparency = 1
-        welcome.Position = UDim2.new(0,0,0,0)
-        welcome.Size = UDim2.new(1,0,0,32)
-        welcome.Parent = topRight
-        -- Datum/Uhrzeit
+        welcome.Position = UDim2.new(0,16,0,10)
+        welcome.Size = UDim2.new(1,-32,0,32)
+        welcome.Parent = topRightField
         local dateLabel = Instance.new("TextLabel")
         dateLabel.Text = ""
         dateLabel.Font = Enum.Font.Gotham
         dateLabel.TextSize = 18
         dateLabel.TextColor3 = getBrightTextColor()
         dateLabel.BackgroundTransparency = 1
-        dateLabel.Position = UDim2.new(0,0,0,32)
-        dateLabel.Size = UDim2.new(1,0,0,24)
-        dateLabel.Parent = topRight
-        -- Session-Laufzeit
+        dateLabel.Position = UDim2.new(0,16,0,44)
+        dateLabel.Size = UDim2.new(1,-32,0,24)
+        dateLabel.Parent = topRightField
         local sessionLabel = Instance.new("TextLabel")
         sessionLabel.Text = "Session: 0s"
         sessionLabel.Font = Enum.Font.Gotham
         sessionLabel.TextSize = 18
         sessionLabel.TextColor3 = getBrightTextColor()
         sessionLabel.BackgroundTransparency = 1
-        sessionLabel.Position = UDim2.new(0,0,0,56)
-        sessionLabel.Size = UDim2.new(1,0,0,24)
-        sessionLabel.Parent = topRight
-        -- Datum/Uhrzeit & Session Updater
+        sessionLabel.Position = UDim2.new(0,16,0,72)
+        sessionLabel.Size = UDim2.new(1,-32,0,24)
+        sessionLabel.Parent = topRightField
         local startTime = tick()
         spawn(function()
             while mainPanel.Parent do
@@ -538,12 +551,15 @@ function showCatalogContent(index)
             end
         end)
 
-        -- Unten links: Statistiken
-        local statsFrame = Instance.new("Frame")
-        statsFrame.Size = UDim2.new(0, 220, 0, 80)
-        statsFrame.Position = UDim2.new(0, 0, 1, -80)
-        statsFrame.BackgroundTransparency = 1
-        statsFrame.Parent = mainPanel
+        -- Unten links: Statistiken mit Feld
+        local statsField = Instance.new("Frame")
+        statsField.Size = UDim2.new(0, 220, 0, 80)
+        statsField.Position = UDim2.new(0, 0, 1, -80)
+        statsField.BackgroundColor3 = fieldBg
+        statsField.BackgroundTransparency = 0.08
+        statsField.Parent = mainPanel
+        local statsCorner = Instance.new("UICorner", statsField)
+        statsCorner.CornerRadius = UDim.new(0, 18)
         local statsLabel = Instance.new("TextLabel")
         statsLabel.Text = string.format("Scripts: %d\nSession-Starts: 1", #Scripts.list)
         statsLabel.Font = Enum.Font.Gotham
@@ -553,14 +569,17 @@ function showCatalogContent(index)
         statsLabel.Size = UDim2.new(1,0,1,0)
         statsLabel.TextWrapped = true
         statsLabel.TextYAlignment = Enum.TextYAlignment.Top
-        statsLabel.Parent = statsFrame
+        statsLabel.Parent = statsField
 
-        -- Unten rechts: Credits + Feedback
-        local creditsFrame = Instance.new("Frame")
-        creditsFrame.Size = UDim2.new(0, 220, 0, 80)
-        creditsFrame.Position = UDim2.new(1, -220, 1, -80)
-        creditsFrame.BackgroundTransparency = 1
-        creditsFrame.Parent = mainPanel
+        -- Unten rechts: Credits + Feedback mit Feld
+        local creditsField = Instance.new("Frame")
+        creditsField.Size = UDim2.new(0, 220, 0, 80)
+        creditsField.Position = UDim2.new(1, -220, 1, -80)
+        creditsField.BackgroundColor3 = fieldBg
+        creditsField.BackgroundTransparency = 0.08
+        creditsField.Parent = mainPanel
+        local creditsCorner = Instance.new("UICorner", creditsField)
+        creditsCorner.CornerRadius = UDim.new(0, 18)
         local creditsLabel = Instance.new("TextLabel")
         creditsLabel.Text = "JoHub by k5d6r\nDesign: Joshy"
         creditsLabel.Font = Enum.Font.Gotham
@@ -569,8 +588,7 @@ function showCatalogContent(index)
         creditsLabel.BackgroundTransparency = 1
         creditsLabel.Size = UDim2.new(1,0,0,40)
         creditsLabel.TextYAlignment = Enum.TextYAlignment.Top
-        creditsLabel.Parent = creditsFrame
-        -- Feedback-Button
+        creditsLabel.Parent = creditsField
         local feedbackBtn = Instance.new("TextButton")
         feedbackBtn.Text = "Feedback senden"
         feedbackBtn.Font = Enum.Font.GothamBold
@@ -580,28 +598,37 @@ function showCatalogContent(index)
         feedbackBtn.BackgroundTransparency = 0.15
         feedbackBtn.Size = UDim2.new(1,0,0,32)
         feedbackBtn.Position = UDim2.new(0,0,1,-32)
-        feedbackBtn.Parent = creditsFrame
+        feedbackBtn.Parent = creditsField
         local feedbackBtnCorner = Instance.new("UICorner", feedbackBtn)
         feedbackBtnCorner.CornerRadius = UDim.new(0, 8)
         feedbackBtn.MouseEnter:Connect(playHover)
         feedbackBtn.MouseButton1Click:Connect(playClick)
         feedbackBtn.MouseButton1Click:Connect(function()
-            -- Feedback-Modal öffnen
+            -- Feedback-Modal öffnen (NEUES, HELLERES DESIGN)
             local modal = Instance.new("Frame")
             modal.Size = UDim2.new(0, 420, 0, 260)
             modal.Position = UDim2.new(0.5, -210, 0.5, -130)
-            modal.BackgroundColor3 = currentTheme.BgAccent
-            modal.BackgroundTransparency = 0.05
+            modal.BackgroundColor3 = Color3.fromRGB(245,245,255) -- Sehr hell
+            modal.BackgroundTransparency = 0
             modal.ZIndex = 1000
             modal.Parent = screenGui
             local modalCorner = Instance.new("UICorner", modal)
             modalCorner.CornerRadius = UDim.new(0, 18)
+            -- Drop Shadow
+            local shadow = Instance.new("ImageLabel")
+            shadow.BackgroundTransparency = 1
+            shadow.Image = "rbxassetid://1316045217"
+            shadow.ImageTransparency = 0.7
+            shadow.Size = UDim2.new(1, 24, 1, 24)
+            shadow.Position = UDim2.new(0, -12, 0, -12)
+            shadow.ZIndex = 999
+            shadow.Parent = modal
             -- User Label
             local userLabel = Instance.new("TextLabel")
             userLabel.Text = "User: "..player.Name
             userLabel.Font = Enum.Font.GothamBold
             userLabel.TextSize = 20
-            userLabel.TextColor3 = getBrightTextColor()
+            userLabel.TextColor3 = Color3.fromRGB(30,30,40)
             userLabel.BackgroundTransparency = 1
             userLabel.Position = UDim2.new(0,20,0,20)
             userLabel.Size = UDim2.new(1,-40,0,32)
@@ -612,9 +639,9 @@ function showCatalogContent(index)
             fbBox.Text = ""
             fbBox.Font = Enum.Font.Gotham
             fbBox.TextSize = 18
-            fbBox.TextColor3 = Color3.fromRGB(0,0,0)
-            fbBox.BackgroundColor3 = Color3.fromRGB(255,220,255)
-            fbBox.BackgroundTransparency = 0.1
+            fbBox.TextColor3 = Color3.fromRGB(30,30,40)
+            fbBox.BackgroundColor3 = Color3.fromRGB(255,255,255)
+            fbBox.BackgroundTransparency = 0
             fbBox.Position = UDim2.new(0,20,0,62)
             fbBox.Size = UDim2.new(1,-40,0,90)
             fbBox.TextWrapped = true
@@ -626,6 +653,16 @@ function showCatalogContent(index)
             fbBox.Parent = modal
             local fbBoxCorner = Instance.new("UICorner", fbBox)
             fbBoxCorner.CornerRadius = UDim.new(0, 10)
+            -- Subtle border for TextBox
+            local fbBoxBorder = Instance.new("Frame")
+            fbBoxBorder.Size = UDim2.new(1,0,1,0)
+            fbBoxBorder.Position = UDim2.new(0,0,0,0)
+            fbBoxBorder.BackgroundColor3 = Color3.fromRGB(220,220,230)
+            fbBoxBorder.BackgroundTransparency = 0.2
+            fbBoxBorder.ZIndex = fbBox.ZIndex + 1
+            fbBoxBorder.Parent = fbBox
+            local fbBoxBorderCorner = Instance.new("UICorner", fbBoxBorder)
+            fbBoxBorderCorner.CornerRadius = UDim.new(0, 10)
             -- Zeichenlimit
             fbBox:GetPropertyChangedSignal("Text"):Connect(function()
                 if #fbBox.Text > 1000 then
@@ -638,8 +675,8 @@ function showCatalogContent(index)
             sendBtn.Font = Enum.Font.GothamBold
             sendBtn.TextSize = 20
             sendBtn.BackgroundColor3 = currentTheme.Color
-            sendBtn.TextColor3 = getBrightTextColor()
-            sendBtn.BackgroundTransparency = 0.15
+            sendBtn.TextColor3 = Color3.fromRGB(255,255,255)
+            sendBtn.BackgroundTransparency = 0
             sendBtn.Size = UDim2.new(0.5, -16, 0, 36)
             sendBtn.Position = UDim2.new(0, 20, 1, -56)
             sendBtn.Parent = modal
@@ -652,14 +689,24 @@ function showCatalogContent(index)
             cancelBtn.Text = "Abbrechen"
             cancelBtn.Font = Enum.Font.Gotham
             cancelBtn.TextSize = 18
-            cancelBtn.BackgroundColor3 = Color3.fromRGB(120,120,120)
-            cancelBtn.TextColor3 = getBrightTextColor()
-            cancelBtn.BackgroundTransparency = 0.15
+            cancelBtn.BackgroundColor3 = Color3.fromRGB(245,245,255)
+            cancelBtn.TextColor3 = Color3.fromRGB(30,30,40)
+            cancelBtn.BackgroundTransparency = 0
             cancelBtn.Size = UDim2.new(0.5, -16, 0, 36)
             cancelBtn.Position = UDim2.new(0.5, 12, 1, -56)
             cancelBtn.Parent = modal
             local cancelBtnCorner = Instance.new("UICorner", cancelBtn)
             cancelBtnCorner.CornerRadius = UDim.new(0, 8)
+            -- Border for cancel button
+            local cancelBtnBorder = Instance.new("Frame")
+            cancelBtnBorder.Size = UDim2.new(1,0,1,0)
+            cancelBtnBorder.Position = UDim2.new(0,0,0,0)
+            cancelBtnBorder.BackgroundColor3 = Color3.fromRGB(200,200,210)
+            cancelBtnBorder.BackgroundTransparency = 0.2
+            cancelBtnBorder.ZIndex = cancelBtn.ZIndex + 1
+            cancelBtnBorder.Parent = cancelBtn
+            local cancelBtnBorderCorner = Instance.new("UICorner", cancelBtnBorder)
+            cancelBtnBorderCorner.CornerRadius = UDim.new(0, 8)
             cancelBtn.MouseEnter:Connect(playHover)
             cancelBtn.MouseButton1Click:Connect(playClick)
             cancelBtn.MouseButton1Click:Connect(function()
@@ -694,10 +741,10 @@ function showCatalogContent(index)
                 sendBtn.Visible = false
                 cancelBtn.Visible = false
                 local thx = Instance.new("TextLabel")
-                thx.Text = "Danke für den Feedback <3"
+                thx.Text = "Danke für dein Feedback <3"
                 thx.Font = Enum.Font.GothamBold
                 thx.TextSize = 26
-                thx.TextColor3 = Color3.fromRGB(255,0,200)
+                thx.TextColor3 = currentTheme.Color
                 thx.BackgroundTransparency = 1
                 thx.Size = UDim2.new(1,0,0,60)
                 thx.Position = UDim2.new(0,0,0.5,-30)
@@ -710,7 +757,7 @@ function showCatalogContent(index)
                 modal:Destroy()
             end)
         end)
-        -- Animationen für alle Elemente
+        -- Animationen für alle Felder
         for _,obj in ipairs(mainPanel:GetDescendants()) do
             if obj:IsA("TextLabel") or obj:IsA("TextButton") then
                 obj.TextTransparency = 1
@@ -719,6 +766,10 @@ function showCatalogContent(index)
             if obj:IsA("ImageLabel") then
                 obj.ImageTransparency = 1
                 TweenService:Create(obj, TweenInfo.new(0.5), {ImageTransparency = 0.15}):Play()
+            end
+            if obj:IsA("Frame") and obj ~= mainPanel then
+                obj.BackgroundTransparency = 1
+                TweenService:Create(obj, TweenInfo.new(0.5), {BackgroundTransparency = 0.08}):Play()
             end
         end
     elseif index == 2 then
