@@ -27,7 +27,7 @@ local KEY_URL = "https://pastebin.com/raw/pukeNBLN"
 local BYPASS_USERS = {"k5d2r", "Roblox"} -- Hier beliebig viele Usernamen eintragen
 
 -- Theme-Konfiguration und Color-Helper aus Modul laden
-local ThemeManager = loadstring(game:HttpGet("file://modules/ThemeManager.lua"))()
+local ThemeManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/TrollGamer6636/JoHub/refs/heads/main/modules/ThemeManager.lua"))()
 local themes = ThemeManager.themes
 local getBrightTextColor = ThemeManager.getBrightTextColor
 local getHoverColor = ThemeManager.getHoverColor
@@ -378,7 +378,7 @@ local function clearCatalogContent(callback)
 end
 
 -- Scripts-Module laden
-local Scripts = loadstring(game:HttpGet("file://modules/Scripts.lua"))()
+local Scripts = loadstring(game:HttpGet("https://raw.githubusercontent.com/TrollGamer6636/JoHub/refs/heads/main/modules/Scripts.lua"))()
 
 function showCatalogContent(index)
     clearCatalogContent()
