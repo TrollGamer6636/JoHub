@@ -543,7 +543,7 @@ local function showWelcome()
     local welcome = Instance.new("TextLabel")
     welcome.Text = "Willkommen, "..player.Name
     welcome.Size = UDim2.new(0, 340, 0, 54)
-    welcome.Position = UDim2.new(0.5, -170, 0, -50) -- Positioned above "JoHub" text with spacing
+    welcome.Position = UDim2.new(0.5, -170, 0, -55) -- Positioned above "JoHub" text with spacing
     welcome.BackgroundTransparency = 0.2
     welcome.BackgroundColor3 = Color3.fromRGB(60,0,80)
     welcome.TextColor3 = Color3.fromRGB(255,255,255)
