@@ -474,7 +474,6 @@ function showCatalogContent(index)
                 math.clamp(color.B * f, 0, 1)
             )
         end
-        local fieldBg = darker(currentTheme.BgAccent or Color3.fromRGB(60,0,80), -0.03)
 
         local mainPanel = Instance.new("Frame")
         mainPanel.Size = UDim2.new(1,-20,1,-20)
@@ -487,8 +486,8 @@ function showCatalogContent(index)
         local avatarField = Instance.new("Frame")
         avatarField.Size = UDim2.new(0, 120, 0, 120)
         avatarField.Position = UDim2.new(0, 0, 0, 0)
-        avatarField.BackgroundColor3 = fieldBg
-        avatarField.BackgroundTransparency = 0.08
+        avatarField.BackgroundColor3 = currentTheme.BgAccent
+        avatarField.BackgroundTransparency = 0.04 -- weniger durchsichtig
         avatarField.Parent = mainPanel
         local avatarFieldCorner = Instance.new("UICorner", avatarField)
         avatarFieldCorner.CornerRadius = UDim.new(0, 22)
@@ -500,14 +499,14 @@ function showCatalogContent(index)
         avatarImg.Parent = avatarField
         local avatarCorner = Instance.new("UICorner", avatarImg)
         avatarCorner.CornerRadius = UDim.new(1,0)
-        avatarImg.ImageTransparency = 0.15
+        avatarImg.ImageTransparency = 0.08
 
         -- Oben rechts: Willkommen, Datum/Uhrzeit, Session mit Feld
         local topRightField = Instance.new("Frame")
         topRightField.Size = UDim2.new(0, 320, 0, 120)
         topRightField.Position = UDim2.new(1, -320, 0, 0)
-        topRightField.BackgroundColor3 = fieldBg
-        topRightField.BackgroundTransparency = 0.08
+        topRightField.BackgroundColor3 = currentTheme.BgAccent
+        topRightField.BackgroundTransparency = 0.04
         topRightField.Parent = mainPanel
         local topRightCorner = Instance.new("UICorner", topRightField)
         topRightCorner.CornerRadius = UDim.new(0, 22)
@@ -555,8 +554,8 @@ function showCatalogContent(index)
         local statsField = Instance.new("Frame")
         statsField.Size = UDim2.new(0, 220, 0, 80)
         statsField.Position = UDim2.new(0, 0, 1, -80)
-        statsField.BackgroundColor3 = fieldBg
-        statsField.BackgroundTransparency = 0.08
+        statsField.BackgroundColor3 = currentTheme.BgAccent
+        statsField.BackgroundTransparency = 0.04
         statsField.Parent = mainPanel
         local statsCorner = Instance.new("UICorner", statsField)
         statsCorner.CornerRadius = UDim.new(0, 18)
@@ -575,8 +574,8 @@ function showCatalogContent(index)
         local creditsField = Instance.new("Frame")
         creditsField.Size = UDim2.new(0, 220, 0, 80)
         creditsField.Position = UDim2.new(1, -220, 1, -80)
-        creditsField.BackgroundColor3 = fieldBg
-        creditsField.BackgroundTransparency = 0.08
+        creditsField.BackgroundColor3 = currentTheme.BgAccent
+        creditsField.BackgroundTransparency = 0.04
         creditsField.Parent = mainPanel
         local creditsCorner = Instance.new("UICorner", creditsField)
         creditsCorner.CornerRadius = UDim.new(0, 18)
@@ -595,7 +594,7 @@ function showCatalogContent(index)
         feedbackBtn.TextSize = 18
         feedbackBtn.BackgroundColor3 = currentTheme.Color
         feedbackBtn.TextColor3 = getBrightTextColor()
-        feedbackBtn.BackgroundTransparency = 0.15
+        feedbackBtn.BackgroundTransparency = 0.08
         feedbackBtn.Size = UDim2.new(1,0,0,32)
         feedbackBtn.Position = UDim2.new(0,0,1,-32)
         feedbackBtn.Parent = creditsField
@@ -604,31 +603,22 @@ function showCatalogContent(index)
         feedbackBtn.MouseEnter:Connect(playHover)
         feedbackBtn.MouseButton1Click:Connect(playClick)
         feedbackBtn.MouseButton1Click:Connect(function()
-            -- Feedback-Modal öffnen (NEUES, HELLERES DESIGN)
+            -- Feedback-Modal im JoHub-Theme
             local modal = Instance.new("Frame")
             modal.Size = UDim2.new(0, 420, 0, 260)
             modal.Position = UDim2.new(0.5, -210, 0.5, -130)
-            modal.BackgroundColor3 = Color3.fromRGB(245,245,255) -- Sehr hell
-            modal.BackgroundTransparency = 0
+            modal.BackgroundColor3 = currentTheme.BgAccent
+            modal.BackgroundTransparency = 0.04
             modal.ZIndex = 1000
             modal.Parent = screenGui
             local modalCorner = Instance.new("UICorner", modal)
             modalCorner.CornerRadius = UDim.new(0, 18)
-            -- Drop Shadow
-            local shadow = Instance.new("ImageLabel")
-            shadow.BackgroundTransparency = 1
-            shadow.Image = "rbxassetid://1316045217"
-            shadow.ImageTransparency = 0.7
-            shadow.Size = UDim2.new(1, 24, 1, 24)
-            shadow.Position = UDim2.new(0, -12, 0, -12)
-            shadow.ZIndex = 999
-            shadow.Parent = modal
             -- User Label
             local userLabel = Instance.new("TextLabel")
             userLabel.Text = "User: "..player.Name
             userLabel.Font = Enum.Font.GothamBold
             userLabel.TextSize = 20
-            userLabel.TextColor3 = Color3.fromRGB(30,30,40)
+            userLabel.TextColor3 = getBrightTextColor()
             userLabel.BackgroundTransparency = 1
             userLabel.Position = UDim2.new(0,20,0,20)
             userLabel.Size = UDim2.new(1,-40,0,32)
@@ -639,9 +629,9 @@ function showCatalogContent(index)
             fbBox.Text = ""
             fbBox.Font = Enum.Font.Gotham
             fbBox.TextSize = 18
-            fbBox.TextColor3 = Color3.fromRGB(30,30,40)
-            fbBox.BackgroundColor3 = Color3.fromRGB(255,255,255)
-            fbBox.BackgroundTransparency = 0
+            fbBox.TextColor3 = getBrightTextColor()
+            fbBox.BackgroundColor3 = currentTheme.Bg
+            fbBox.BackgroundTransparency = 0.08
             fbBox.Position = UDim2.new(0,20,0,62)
             fbBox.Size = UDim2.new(1,-40,0,90)
             fbBox.TextWrapped = true
@@ -653,16 +643,6 @@ function showCatalogContent(index)
             fbBox.Parent = modal
             local fbBoxCorner = Instance.new("UICorner", fbBox)
             fbBoxCorner.CornerRadius = UDim.new(0, 10)
-            -- Subtle border for TextBox
-            local fbBoxBorder = Instance.new("Frame")
-            fbBoxBorder.Size = UDim2.new(1,0,1,0)
-            fbBoxBorder.Position = UDim2.new(0,0,0,0)
-            fbBoxBorder.BackgroundColor3 = Color3.fromRGB(220,220,230)
-            fbBoxBorder.BackgroundTransparency = 0.2
-            fbBoxBorder.ZIndex = fbBox.ZIndex + 1
-            fbBoxBorder.Parent = fbBox
-            local fbBoxBorderCorner = Instance.new("UICorner", fbBoxBorder)
-            fbBoxBorderCorner.CornerRadius = UDim.new(0, 10)
             -- Zeichenlimit
             fbBox:GetPropertyChangedSignal("Text"):Connect(function()
                 if #fbBox.Text > 1000 then
@@ -675,8 +655,8 @@ function showCatalogContent(index)
             sendBtn.Font = Enum.Font.GothamBold
             sendBtn.TextSize = 20
             sendBtn.BackgroundColor3 = currentTheme.Color
-            sendBtn.TextColor3 = Color3.fromRGB(255,255,255)
-            sendBtn.BackgroundTransparency = 0
+            sendBtn.TextColor3 = getBrightTextColor()
+            sendBtn.BackgroundTransparency = 0.08
             sendBtn.Size = UDim2.new(0.5, -16, 0, 36)
             sendBtn.Position = UDim2.new(0, 20, 1, -56)
             sendBtn.Parent = modal
@@ -689,24 +669,14 @@ function showCatalogContent(index)
             cancelBtn.Text = "Abbrechen"
             cancelBtn.Font = Enum.Font.Gotham
             cancelBtn.TextSize = 18
-            cancelBtn.BackgroundColor3 = Color3.fromRGB(245,245,255)
-            cancelBtn.TextColor3 = Color3.fromRGB(30,30,40)
-            cancelBtn.BackgroundTransparency = 0
+            cancelBtn.BackgroundColor3 = currentTheme.Bg
+            cancelBtn.TextColor3 = getBrightTextColor()
+            cancelBtn.BackgroundTransparency = 0.08
             cancelBtn.Size = UDim2.new(0.5, -16, 0, 36)
             cancelBtn.Position = UDim2.new(0.5, 12, 1, -56)
             cancelBtn.Parent = modal
             local cancelBtnCorner = Instance.new("UICorner", cancelBtn)
             cancelBtnCorner.CornerRadius = UDim.new(0, 8)
-            -- Border for cancel button
-            local cancelBtnBorder = Instance.new("Frame")
-            cancelBtnBorder.Size = UDim2.new(1,0,1,0)
-            cancelBtnBorder.Position = UDim2.new(0,0,0,0)
-            cancelBtnBorder.BackgroundColor3 = Color3.fromRGB(200,200,210)
-            cancelBtnBorder.BackgroundTransparency = 0.2
-            cancelBtnBorder.ZIndex = cancelBtn.ZIndex + 1
-            cancelBtnBorder.Parent = cancelBtn
-            local cancelBtnBorderCorner = Instance.new("UICorner", cancelBtnBorder)
-            cancelBtnBorderCorner.CornerRadius = UDim.new(0, 8)
             cancelBtn.MouseEnter:Connect(playHover)
             cancelBtn.MouseButton1Click:Connect(playClick)
             cancelBtn.MouseButton1Click:Connect(function()
@@ -765,11 +735,11 @@ function showCatalogContent(index)
             end
             if obj:IsA("ImageLabel") then
                 obj.ImageTransparency = 1
-                TweenService:Create(obj, TweenInfo.new(0.5), {ImageTransparency = 0.15}):Play()
+                TweenService:Create(obj, TweenInfo.new(0.5), {ImageTransparency = 0.08}):Play()
             end
             if obj:IsA("Frame") and obj ~= mainPanel then
                 obj.BackgroundTransparency = 1
-                TweenService:Create(obj, TweenInfo.new(0.5), {BackgroundTransparency = 0.08}):Play()
+                TweenService:Create(obj, TweenInfo.new(0.5), {BackgroundTransparency = 0.04}):Play()
             end
         end
     elseif index == 2 then
