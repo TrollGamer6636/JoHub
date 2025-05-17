@@ -543,7 +543,7 @@ local function showWelcome()
     local welcome = Instance.new("TextLabel")
     welcome.Text = "Willkommen, "..player.Name
     welcome.Size = UDim2.new(0, 340, 0, 54)
-    welcome.Position = UDim2.new(0.5, -170, 0, 40)
+    welcome.Position = UDim2.new(0.5, -170, 0, -20) -- Positioned above "JoHub" text with spacing
     welcome.BackgroundTransparency = 0.2
     welcome.BackgroundColor3 = Color3.fromRGB(60,0,80)
     welcome.TextColor3 = Color3.fromRGB(255,255,255)
@@ -554,7 +554,7 @@ local function showWelcome()
     local wcCorner = Instance.new("UICorner", welcome)
     wcCorner.CornerRadius = UDim.new(1,0)
     TweenService:Create(welcome, TweenInfo.new(0.5), {TextTransparency = 0, BackgroundTransparency = 0.2}):Play()
-    wait(1.5)
+    wait(5) -- Extended display duration to 5 seconds
     TweenService:Create(welcome, TweenInfo.new(0.5), {TextTransparency = 1, BackgroundTransparency = 1}):Play()
     wait(0.5)
     welcome:Destroy()
