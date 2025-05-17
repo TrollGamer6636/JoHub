@@ -485,26 +485,86 @@ end)
 enableJoHubBlur()
 
 -- KeySystem-Login
-KeySystem.checkKeyAndLogin({
-    player = player,
-    BYPASS_USERS = BYPASS_USERS,
-    KEY_URL = KEY_URL,
-    loginBtn = loginBtn,
-    keyBox = keyBox,
-    notify = notify,
-    showNotify = showNotify,
-    finishLoginAndShowHub = function()
-        KeySystem.finishLoginAndShowHub({
-            keyFrame = keyFrame,
-            screenGui = screenGui,
-            getBrightTextColor = getBrightTextColor,
-            mainFrame = mainFrame,
-            createCatalogButtons = createCatalogButtons,
-            showCatalogContent = function() showCatalogContent(currentCatalog[1]) end,
-            setJoHubVisible = setJoHubVisible,
-            showWelcome = showWelcome
-        })
+local function isBypassUser(username)
+    for _,bypassName in ipairs(BYPASS_USERS) do
+        if username == bypassName then return true end
     end
-})
+    return false
+end
+
+if isBypassUser(player.Name) then
+    -- Bypass: skip keyFrame, go straight to hub
+    KeySystem.checkKeyAndLogin({
+        player = player,
+        BYPASS_USERS = BYPASS_USERS,
+        KEY_URL = KEY_URL,
+        loginBtn = loginBtn,
+        keyBox = keyBox,
+        notify = notify,
+        showNotify = showNotify,
+        finishLoginAndShowHub = function()
+            KeySystem.finishLoginAndShowHub({
+                keyFrame = keyFrame,
+                screenGui = screenGui,
+                getBrightTextColor = getBrightTextColor,
+                mainFrame = mainFrame,
+                createCatalogButtons = createCatalogButtons,
+                showCatalogContent = function() showCatalogContent(currentCatalog[1]) end,
+                setJoHubVisible = setJoHubVisible,
+                showWelcome = showWelcome
+            })
+        end
+    })
+else
+    -- Not bypass: show keyFrame and animate in
+    keyFrame.Visible = true
+    if TweenService and TweenService.Create then
+        TweenService:Create(keyFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            BackgroundTransparency = 0.15,
+            Size = UDim2.new(0, 480, 0, 200),
+            Position = UDim2.new(0.5, -240, 0.5, -100)
+        }):Play()
+    else
+        keyFrame.BackgroundTransparency = 0.15
+        keyFrame.Size = UDim2.new(0, 480, 0, 200)
+        keyFrame.Position = UDim2.new(0.5, -240, 0.5, -100)
+    end
+    KeySystem.checkKeyAndLogin({
+        player = player,
+        BYPASS_USERS = BYPASS_USERS,
+        KEY_URL = KEY_URL,
+        loginBtn = loginBtn,
+        keyBox = keyBox,
+        notify = notify,
+        showNotify = showNotify,
+        finishLoginAndShowHub = function()
+            KeySystem.finishLoginAndShowHub({
+                keyFrame = keyFrame,
+                screenGui = screenGui,
+                getBrightTextColor = getBrightTextColor,
+                mainFrame = mainFrame,
+                createCatalogButtons = createCatalogButtons,
+                showCatalogContent = function() showCatalogContent(currentCatalog[1]) end,
+                setJoHubVisible = setJoHubVisible,
+                showWelcome = showWelcome
+            })
+        end
+    })
+end
 
 showCatalogContent(currentCatalog[1])
+
+-- Final cleanup: always remove JoHubBlur if script is unloaded
+coroutine.wrap(function()
+    while true do
+        wait(2) -- Roblox global, safe to ignore linter
+        if not screenGui or not screenGui.Parent then
+            pcall(function()
+                if Lighting:FindFirstChild("JoHubBlur") then
+                    Lighting.JoHubBlur:Destroy()
+                end
+            end)
+            break
+        end
+    end
+end)()

@@ -224,8 +224,10 @@ function Catalog.showCatalogContent(args)
         removeBtnCorner.CornerRadius = UDim.new(0, 8)
         TweenService:Create(removeBtn, TweenInfo.new(0.4), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
         removeBtn.MouseButton1Click:Connect(function()
-            screenGui:Destroy()
             if disableJoHubBlur then disableJoHubBlur() end
+            if screenGui and screenGui.Parent then
+                screenGui:Destroy()
+            end
         end)
     end
 end
