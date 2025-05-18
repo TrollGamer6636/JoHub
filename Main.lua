@@ -514,17 +514,19 @@ function showCatalogContent(index)
         local avatarCorner = Instance.new("UICorner", avatarImg)
         avatarCorner.CornerRadius = UDim.new(1,0)
         avatarImg.ImageTransparency = 0.08
-        -- Begrüßung unter dem Avatar
+        -- Begrüßung unter dem Avatar (angepasst für bessere Passung)
         local welcome = Instance.new("TextLabel")
         welcome.Text = "Willkommen, "..player.Name.."!"
         welcome.Font = Enum.Font.GothamBold
-        welcome.TextSize = 22
+        welcome.TextSize = 18 -- kleiner für bessere Passung
         welcome.TextColor3 = getBrightTextColor()
         welcome.BackgroundTransparency = 1
-        welcome.Position = UDim2.new(0, 0, 0, 96)
-        welcome.Size = UDim2.new(1, 0, 0, 32)
+        welcome.Position = UDim2.new(0, 0, 0, 90) -- etwas höher
+        welcome.Size = UDim2.new(1, 0, 0, 24) -- kleiner
         welcome.ZIndex = avatarField.ZIndex + 1
         welcome.TextXAlignment = Enum.TextXAlignment.Center
+        welcome.TextYAlignment = Enum.TextYAlignment.Top
+        welcome.TextWrapped = true
         welcome.Parent = avatarField
 
         -- 2. Feld: Datum/Uhrzeit, Session (ohne Begrüßung)
